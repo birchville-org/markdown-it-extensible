@@ -76,5 +76,12 @@
       ":br"
     ],
     "description": "Line break inside a markdown table cell"
+  },
+  "Sanskrit Brackets": {
+    "prefix": "ssan",
+    "body": [
+      "《${1:text}》"
+    ],
+    "description": "Insert Sanskrit Devanagari double angle brackets 《text》"
   }
 }
