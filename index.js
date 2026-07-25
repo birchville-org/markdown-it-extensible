@@ -1,31 +1,34 @@
 const container = require('markdown-it-container');
 
 module.exports = function scholarlyPlugin(md, options = {}) {
-  // 1. Custom Boxes
-  const customBoxes = {
-    'grammar-box': 'grammar-box',
-    'grammarbox': 'grammar-box',
-    'grammar-box2': 'grammar-box2',
-    'grammarbox2': 'grammar-box2',
-    'media': 'media',
-    'center': 'center',
-    'metrik-schema': 'metrik-schema',
-    'metrikschema': 'metrik-schema',
-    'important': 'important',
-    'deleteme-box': 'deleteme-box',
-    'deletemebox': 'deleteme-box',
-    'note-box': 'note-box',
-    'notebox': 'note-box',
-    'laut-table': 'laut-table',
-    'lauttable': 'laut-table',
-    'indent': 'indent',
-    'compact': 'compact',
-    'no-header': 'no-header',
-    'noheader': 'no-header'
-  };
+  // 1. Custom Block Containers (dynamically configurable)
+  const blockContainers = (options.blockContainers && options.blockContainers.length > 0) 
+    ? options.blockContainers 
+    : [
+        { name: 'grammar-box', className: 'grammar-box' },
+        { name: 'grammarbox', className: 'grammar-box' },
+        { name: 'grammar-box2', className: 'grammar-box2' },
+        { name: 'grammarbox2', className: 'grammar-box2' },
+        { name: 'media', className: 'media' },
+        { name: 'center', className: 'center' },
+        { name: 'metrik-schema', className: 'metrik-schema' },
+        { name: 'metrikschema', className: 'metrik-schema' },
+        { name: 'important', className: 'important' },
+        { name: 'deleteme-box', className: 'deleteme-box' },
+        { name: 'deletemebox', className: 'deleteme-box' },
+        { name: 'note-box', className: 'note-box' },
+        { name: 'notebox', className: 'note-box' },
+        { name: 'laut-table', className: 'laut-table' },
+        { name: 'lauttable', className: 'laut-table' },
+        { name: 'indent', className: 'indent' },
+        { name: 'compact', className: 'compact' },
+        { name: 'no-header', className: 'no-header' },
+        { name: 'noheader', className: 'no-header' }
+      ];
 
-  Object.keys(customBoxes).forEach(box => {
-    const cssClass = customBoxes[box];
+  blockContainers.forEach(containerOpt => {
+    const box = containerOpt.name;
+    const cssClass = containerOpt.className;
     md.use(container, box, {
       validate: (params) => params.trim().match(new RegExp(`^${box}(?:\\s+(.*))?$`)),
       render: (tokens, idx) => {
@@ -47,7 +50,6 @@ module.exports = function scholarlyPlugin(md, options = {}) {
   });
 
   // 2. Fix for markdown-it-attrs tables tbody calculate error with markdown-it-multimd-table
-  // Temporarily rename tbody_close to bypass the buggy calculate rule
   md.core.ruler.before('curly_attributes', 'table_meta_fix', (state) => {
     for (let i = 0; i < state.tokens.length; i++) {
       const token = state.tokens[i];
@@ -57,7 +59,6 @@ module.exports = function scholarlyPlugin(md, options = {}) {
     }
   });
 
-  // Restore tbody_close after curly_attributes has finished
   md.core.ruler.after('curly_attributes', 'table_meta_restore', (state) => {
     for (let i = 0; i < state.tokens.length; i++) {
       const token = state.tokens[i];
@@ -67,58 +68,112 @@ module.exports = function scholarlyPlugin(md, options = {}) {
     }
   });
 
-  // 3. Scholarly syntax: :br, :indent, ⟪Devanagari⟫
+  // 3. Dynamic Inline Directives (:sig[...], :mark[...], etc.) & Scholarly syntax (:br, :indent, ⟪Devanagari⟫)
+  const inlineDirectives = (options.inlineDirectives && options.inlineDirectives.length > 0)
+    ? options.inlineDirectives
+    : [
+        { name: 'sig', className: 'signalrot', tag: 'strong' },
+        { name: 'mark', className: 'marker-yellow', tag: 'mark' }
+      ];
+
+  const directiveMap = new Map();
+  inlineDirectives.forEach(dir => {
+    directiveMap.set(dir.name, {
+      className: dir.className || dir.name,
+      tag: dir.tag || 'span'
+    });
+  });
+
+  const SCHOLARLY_RE = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g;
+
   md.core.ruler.after('linkify', 'scholarly_fixes', (state) => {
     state.tokens.forEach(token => {
-      if (token.type === 'inline') {
-        let newChildren = [];
-        token.children.forEach(child => {
-          if (child.type === 'text') {
-            const SCHOLARLY_RE = /([⟪《][^⟫⟩》]+[⟫⟩》]|sig\\[.*?\\]|(?<!:):br|(?<!:):indent)/g;
-            if (!SCHOLARLY_RE.test(child.content)) {
-              newChildren.push(child);
-              return;
-            }
-            
-            function processContent(content, isInsideSig = false) {
-              const parts = content.split(SCHOLARLY_RE);
-              parts.forEach(part => {
-                if (!part) return;
-                if (part.match(/^[⟪《].*[⟫⟩》]$/)) {
-                  const span = new state.Token('html_inline', '', 0);
-                  span.content = `<span class="sanskrit-dev" translate="no" lang="sa">${part.slice(1, -1)}</span>`;
-                  newChildren.push(span);
-                } else if (part.match(/^sig\\[.*\\]$/) && !isInsideSig) {
-                  const spanOpen = new state.Token('html_inline', '', 0);
-                  spanOpen.content = `<strong class="signalrot">`;
-                  newChildren.push(spanOpen);
-                  
-                  processContent(part.slice(4, -1), true);
-                  
-                  const spanClose = new state.Token('html_inline', '', 0);
-                  spanClose.content = `</strong>`;
-                  newChildren.push(spanClose);
-                } else if (part === ':br') {
-                  newChildren.push(new state.Token('hardbreak', 'br', 0));
-                } else if (part === ':indent') {
-                  const span = new state.Token('html_inline', '', 0);
-                  span.content = '<span class="indent-inline"></span>';
-                  newChildren.push(span);
-                } else {
-                  const text = new state.Token('text', '', 0);
-                  text.content = part;
-                  newChildren.push(text);
+      if (token.type !== 'inline') return;
+      let newChildren = [];
+      token.children?.forEach(child => {
+        if (child.type !== 'text') {
+          newChildren.push(child);
+          return;
+        }
+
+        if (!SCHOLARLY_RE.test(child.content)) {
+          newChildren.push(child);
+          return;
+        }
+
+        function processContent(content) {
+          const parts = content.split(SCHOLARLY_RE);
+          parts.forEach(part => {
+            if (!part) return;
+
+            // Sanskrit brackets: 《...》 or ⟪...⟫
+            if (part.match(/^[⟪《].*[⟫⟩》](?:\s*\|\|?)?$/)) {
+              let innerText = part.replace(/^[⟪《]|(?:[⟫⟩》](?:\s*\|\|?)?)$/g, '');
+              let dandaHtml = '';
+
+              const pipeMatchOutside = part.match(/[⟫⟩》](\s*)(\|\|?)$/);
+              if (pipeMatchOutside) {
+                const space = pipeMatchOutside[1];
+                const pipe = pipeMatchOutside[2];
+                const danda = pipe === '||' ? '॥' : '।';
+                dandaHtml = `${space}${danda}`;
+              } else {
+                const pipeMatchInside = innerText.match(/(\s*)(\|\|?)$/);
+                if (pipeMatchInside) {
+                  const space = pipeMatchInside[1];
+                  const pipe = pipeMatchInside[2];
+                  const danda = pipe === '||' ? '॥' : '।';
+                  dandaHtml = `${space}${danda}`;
+                  innerText = innerText.slice(0, -pipeMatchInside[0].length);
                 }
-              });
+              }
+
+              const span = new state.Token('html_inline', '', 0);
+              span.content = `<span class="sanskrit-dev" translate="no" lang="sa">${innerText}${dandaHtml}</span>`;
+              newChildren.push(span);
+            } 
+            // Configurable & Zero-Code Inline Directives: :sig[...], :mark[...], :custom[...]
+            else if (part.match(/^:[a-zA-Z0-9_-]+\[.*\]$/)) {
+              const colonPos = part.indexOf(':');
+              const bracketPos = part.indexOf('[');
+              const dirName = part.slice(colonPos + 1, bracketPos);
+              const innerText = part.slice(bracketPos + 1, -1);
+
+              const config = directiveMap.get(dirName) || { className: dirName, tag: 'span' };
+              const tagName = config.tag || 'span';
+              const className = config.className || dirName;
+
+              const openTag = new state.Token('html_inline', '', 0);
+              openTag.content = `<${tagName} class="${className}">`;
+              newChildren.push(openTag);
+
+              processContent(innerText);
+
+              const closeTag = new state.Token('html_inline', '', 0);
+              closeTag.content = `</${tagName}>`;
+              newChildren.push(closeTag);
+            } 
+            // Intra-cell line break
+            else if (part === ':br') {
+              newChildren.push(new state.Token('hardbreak', 'br', 0));
+            } 
+            // Intra-cell indent
+            else if (part === ':indent') {
+              const span = new state.Token('html_inline', '', 0);
+              span.content = '<span class="indent-inline"></span>';
+              newChildren.push(span);
+            } 
+            else {
+              const text = new state.Token('text', '', 0);
+              text.content = part;
+              newChildren.push(text);
             }
-            
-            processContent(child.content);
-          } else {
-            newChildren.push(child);
-          }
-        });
-        token.children = newChildren;
-      }
+          });
+        }
+
+        processContent(child.content);
+      });
+      token.children = newChildren;
     });
   });
 };
