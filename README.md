@@ -70,6 +70,9 @@ Writing `::: alert-box[Warning Title]` renders:
 
 Pass your own custom arrays for `blockContainers` or `inlineDirectives` when initializing the plugin. Only the elements explicitly listed in your configuration array will be enabled, giving you full control to remove unwanted syntax elements or rename CSS classes.
 
+> **Dynamic VS Code Autocomplete & Snippets:**  
+> When used with the [VS Code Extension](./vscode-extension), any custom block container or inline directive added to your configuration automatically generates dynamic editor completion snippets (`::: <name>`, `:<name>`, `s<name>`) directly inside the editor!
+
 ### 4. Integration of SVG Graphics and Icons
 
 There are two recommended methods for integrating SVG graphics into `markdown-it-extensible` and custom themes/extensions:

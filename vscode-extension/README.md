@@ -121,21 +121,24 @@ Add the path to your custom CSS file in VS Code Markdown preview settings:
 }
 ```
 
-### 3. Add Custom Editor Snippets
+### 3. Dynamic Config-Driven Editor Autocomplete & Snippets
 
-To add new quick-completion snippets (like `sbox`, `sindent`) in the VS Code Editor, add definitions to [`snippets/markdown.json`](file:///Volumes/SanDisk1TB/proj/markdown-it-extensible/vscode-extension/snippets/markdown.json):
+The extension automatically generates dynamic editor autocomplete snippets for all block containers and inline directives configured in your settings!
 
-```json
-"Warning Box": {
-  "prefix": "swarn",
-  "body": [
-    "::: warning-box [${1:Title}]",
-    "${0:$TM_SELECTED_TEXT}",
-    ":::"
-  ],
-  "description": "Inserts a custom warning box container"
-}
-```
+- **Block Containers (`extensibleMarkdown.blockContainers`):**
+  - Typing `::: <name>` or `s<name>` (e.g. `::: warning-box` or `swarningbox`) automatically suggests:
+    ```markdown
+    ::: warning-box [Title]
+    Selected Text
+    :::
+    ```
+- **Inline Directives (`extensibleMarkdown.inlineDirectives`):**
+  - Typing `:<name>` or `s<name>` (e.g. `:badge` or `sbadge`) automatically suggests:
+    ```markdown
+    :badge[text]
+    ```
+
+Static fallback snippets for default elements can also be customized directly in [`snippets/markdown.json`](file:///Volumes/SanDisk1TB/proj/markdown-it-extensible/vscode-extension/snippets/markdown.json).
 
 ### 4. Integration of SVG Graphics and Icons
 
