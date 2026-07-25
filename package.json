@@ -4,6 +4,11 @@
   "description": "A highly extensible container and inline syntax engine for markdown-it",
 
   "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./css": "./vscode-extension/media/payer-theme.css",
+    "./payer-theme.css": "./vscode-extension/media/payer-theme.css"
+  },
   "scripts": {
     "test": "node --test"
   },
