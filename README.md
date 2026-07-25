@@ -70,15 +70,15 @@ Writing `::: alert-box[Warning Title]` renders:
 
 Pass your own custom arrays for `blockContainers` or `inlineDirectives` when initializing the plugin. Only the elements explicitly listed in your configuration array will be enabled, giving you full control to remove unwanted syntax elements or rename CSS classes.
 
-### 4. Integration von SVG-Grafiken und Icons
+### 4. Integration of SVG Graphics and Icons
 
-Es gibt zwei bewährte Wege, um SVG-Grafiken in `markdown-it-extensible` und eigenen VS Code / Web-Themes einzubinden:
+There are two recommended methods for integrating SVG graphics into `markdown-it-extensible` and custom themes/extensions:
 
-#### Option A: Dekorative Container-Icons via CSS Data-URL (`::before` / `::after`)
-Ideal für automatische Icons an Boxen (z. B. das Verkehrsschild-Warnsymbol in `::: important`):
+#### Option A: Decorative Container Icons via CSS Data-URL (`::before` / `::after`)
+Ideal for attaching automatic icons to container boxes (such as the traffic sign icon in `::: important`):
 
 ```css
-/* Icon automatisch links in der Important-Box anzeigen */
+/* Automatically display icon on the left of the Important box */
 .custom-block.important {
   position: relative;
   padding-left: 4.5rem !important;
@@ -98,17 +98,17 @@ Ideal für automatische Icons an Boxen (z. B. das Verkehrsschild-Warnsymbol in `
 }
 ```
 
-> **Tipp für CSS Data-URLs:**
-> 1. Ersetze Rauten-Farbcodes `#` im SVG durch `%23` (z. B. `fill='%23ee2c30'`).
-> 2. Platziere explizite Abmessungen `width` und `height` auf dem Pseudoelement (z. B. `width: 2.8rem; height: 2.8rem;`), da `::before` ohne Breiten-/Höhenangabe sonst 0×0 Pixel klein bleibt.
+> **Tips for CSS Data-URLs:**
+> 1. Replace hex color code `#` symbols with `%23` (e.g. `fill='%23ee2c30'`).
+> 2. Always set explicit `width` and `height` dimensions on pseudo-elements (e.g. `width: 2.8rem; height: 2.8rem;`), as `::before` elements otherwise default to 0×0 pixels.
 
-#### Option B: SVG-Dateien im Markdown-Dokument (`::: media`)
-Für Vektor-Abbildungen und wissenschaftliche Diagramme im Text:
+#### Option B: SVG Files inside Markdown Documents (`::: media`)
+For embedding vector illustrations and technical diagrams inside document text:
 
 ```markdown
 ::: media
-![Architektur Diagramm](./diagrams/architecture.svg)
-(Bildquelle: [Lizenz-Details](/licenses))
+![Architecture Diagram](./diagrams/architecture.svg)
+(Image source: [Details](/licenses))
 :::
 ```
 
@@ -121,7 +121,7 @@ Für Vektor-Abbildungen und wissenschaftliche Diagramme im Text:
 - `:mark[Text]` ➔ `<mark class="marker-yellow">Text</mark>` (Yellow Highlighter)
 - `:br` ➔ `<br>` (Intra-cell line break)
 - `:indent` ➔ `<span class="indent-inline"></span>` (Intra-cell indent)
-- `《संस्कृतम्》` ➔ `<span class="sanskrit-dev">संस्कृतम्</span>` (Sanskrit)
+- `《संस्कृतम्》` ➔ `<span class="sanskrit-dev">sanskrit</span>` (Sanskrit)
 
 ### Block Containers
 - `::: grammar-box`, `::: grammar-box2`, `::: important`, `::: note-box`, `::: media`, `::: center`, `::: metrik-schema`, `::: deleteme-box`, `::: laut-table`, `::: indent`, `::: compact`, `::: no-header`.

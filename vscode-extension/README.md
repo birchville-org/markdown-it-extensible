@@ -1,41 +1,45 @@
 # Markdown-it Extensible Extension
 
-Eine konfigurierbare VSCode-Erweiterung zur dynamischen Definition und Visualisierung von benutzerdefinierten Markdown-Containern (wie `::: grammar-box` etc.).
+A configurable VS Code extension for dynamically defining and visualizing custom markdown container blocks and inline directives (such as `::: grammar-box`, `:mark[text]`, `:sig[text]`, etc.).
 
 ## Features
 
-Diese Extension rüstet Visual Studio Code mit nativen Snippets für das Projekt-Markdown aus und ermöglicht es, neue Syntax-Elemente dynamisch über die VSCode-Einstellungen zu definieren.
+This extension equips Visual Studio Code with native snippets for custom markdown syntax and allows you to dynamically define new syntax elements via VS Code settings.
 
-### Snippets für Markdown-Dateien
+### Snippets for Markdown Files
 
-Tippe die folgenden Kürzel in eine `.md`-Datei und drücke `Tab`:
+Type the following prefixes into a `.md` file and press `Tab`:
 
-- **`sbox`**: Erstellt eine Standard `::: grammar-box` für Regeln und Paradigmen.
-- **`sbox4`**: Erstellt eine verschachtelte `:::: grammar-box`, z.B. wenn darin ein weiterer `::: indent` Block platziert wird.
-- **`sindent`**: Erstellt einen `::: indent` Block (z.B. für eingerückte Beispiele oder Unter-Vokabulare).
-- **`smedia`**: Erstellt einen fertigen `::: media`-Block inklusive Placeholder für Bildpfad und korrekt formatierter Bildquellenangabe.
-- **`sdel`**: Erstellt eine `::: deleteme-box` für alte HTML-Metadaten, die später gelöscht werden sollen.
-- **`snohead`**: Erstellt einen `::: no-header`-Container, ideal um leere Tabellenköpfe auszublenden.
-- **`sred`**: Erstellt ein `sig[...]`-Tag, um Devanāgarī-Schriftzeichen leuchtend rot hervorzuheben, ohne Markdown-Kursivdruck zu missbrauchen.
-- **`sbr`**: Setzt einen `<br>`-Ersatz (`:br`) in Tabellenzellen, ohne die Markdown-Tabellenzeile umzubrechen.
+- **`sbox`**: Creates a standard `::: grammar-box` for rules and paradigms.
+- **`sbox4`**: Creates a nested `:::: grammar-box` (useful when containing inner `::: indent` blocks).
+- **`sindent`**: Creates an `::: indent` block (e.g. for indented examples or sub-vocabularies).
+- **`smedia`**: Creates a complete `::: media` block including placeholders for image path and formatted attribution.
+- **`sdel`**: Creates a `::: deleteme-box` for hidden metadata or draft notes.
+- **`snohead`**: Creates a `::: no-header` container, ideal for hiding empty table headers.
+- **`ssig`**: Inserts a `:sig[text]` directive for bright signal red text highlighting.
+- **`smark`**: Inserts a `:mark[text]` directive for yellow highlighter marking.
+- **`sbr`**: Inserts an in-cell line break replacement (`:br`) without splitting markdown table rows.
 
 ## Installation
 
-Diese Extension ist lokal im Repository verlinkt. Um sie in deinem VSCode zu aktivieren:
-
+### Option A: Install VSIX Package
+Download or build the `.vsix` file and install it directly:
 ```bash
-# Im Root des Repositories ausführen:
+code --install-extension markdown-it-extensible-vscode-1.1.0.vsix
+```
+
+### Option B: Symlink into VS Code Extensions Directory
+```bash
 ln -s $(pwd)/vscode-extension ~/.vscode/extensions/markdown-it-extensible-vscode
 ```
-Oder verpacke sie per `vsce package` zu einer `.vsix` Datei.
 
-## Erweiterung
+## Customization & Configuration
 
-Du kannst eigene neue Syntax-Elemente und Container-Blöcke dynamisch definieren, ohne den Quellcode der Extension verändern zu müssen.
+You can dynamically define new syntax elements and container blocks without modifying the extension source code.
 
-### 1. Eigene Block-Container definieren (VS Code Einstellungen)
+### 1. Define Custom Block Containers (VS Code Settings)
 
-Öffne deine VS Code `settings.json` (oder navigiere in den Einstellungen zu `Extensible Markdown Settings`) und füge unter `extensibleMarkdown.blockContainers` neue Container hinzu:
+Open your VS Code `settings.json` (or navigate to `Extensible Markdown Settings` in GUI settings) and add custom containers under `extensibleMarkdown.blockContainers`:
 
 ```json
 "extensibleMarkdown.blockContainers": [
@@ -50,33 +54,33 @@ Du kannst eigene neue Syntax-Elemente und Container-Blöcke dynamisch definieren
 ]
 ```
 
-#### Verwendung im Markdown-Dokument:
+#### Usage in Markdown Documents:
 
 ```markdown
-::: warning-box [Wichtiger Hinweis]
-Dies ist eine benutzerdefinierte Warning-Box mit einem Titel.
+::: warning-box [Important Note]
+This is a custom warning box with a title.
 :::
 
 ::: info-box
-Hier steht eine Info-Box ohne Titel.
+This is an info box without a title.
 :::
 ```
 
-#### Rendert zu folgendem HTML:
+#### Renders to the Following HTML:
 
 ```html
 <div class="alert-warning custom-block">
-  <div class="md-box__title">Wichtiger Hinweis</div>
-  <p>Dies ist eine benutzerdefinierte Warning-Box mit einem Titel.</p>
+  <div class="md-box__title">Important Note</div>
+  <p>This is a custom warning box with a title.</p>
 </div>
 ```
 
-### 2. Eigene CSS-Styles definieren (Farben, Ränder & Themes)
+### 2. Define Custom CSS Styles (Colors, Borders & Themes)
 
-Damit der neue Container (z. B. `.alert-warning`) in der VS Code Markdown-Vorschau ansprechend gestaltet wird (Farben, Rahmen, Hintergrund), erstelle oder ergänze eine CSS-Datei:
+To style custom containers (e.g. `.alert-warning`) in the VS Code Markdown preview, create or edit a custom CSS file:
 
-#### Option A: In VS Code Einstellungen einbinden (`settings.json`)
-Füge den Pfad zu deiner eigenen CSS-Datei in die VS Code Markdown-Vorschau-Einstellungen ein:
+#### Option A: Include in VS Code Settings (`settings.json`)
+Add the path to your custom CSS file in VS Code Markdown preview settings:
 
 ```json
 "markdown.styles": [
@@ -84,10 +88,10 @@ Füge den Pfad zu deiner eigenen CSS-Datei in die VS Code Markdown-Vorschau-Eins
 ]
 ```
 
-#### Option B: CSS-Regeln schreiben (`custom-preview.css`)
+#### Option B: Write Custom CSS Rules (`custom-preview.css`)
 
 ```css
-/* Styling für den benutzerdefinierten Container */
+/* Styling for custom container */
 .alert-warning {
   background-color: #fffbe6;
   border-left: 4px solid #faad14;
@@ -97,7 +101,7 @@ Füge den Pfad zu deiner eigenen CSS-Datei in die VS Code Markdown-Vorschau-Eins
   margin: 16px 0;
 }
 
-/* Titel-Styling innerhalb der Box */
+/* Title styling inside container box */
 .alert-warning .md-box__title {
   font-weight: 700;
   color: #d48806;
@@ -106,7 +110,7 @@ Füge den Pfad zu deiner eigenen CSS-Datei in die VS Code Markdown-Vorschau-Eins
   text-transform: uppercase;
 }
 
-/* Optional: Unterstützung für VS Code Dark Mode */
+/* Optional: VS Code Dark Mode Support */
 .vscode-dark .alert-warning {
   background-color: #2b2111;
   border-left-color: #e6a23c;
@@ -117,28 +121,28 @@ Füge den Pfad zu deiner eigenen CSS-Datei in die VS Code Markdown-Vorschau-Eins
 }
 ```
 
-### 3. Eigene Editor-Snippets hinzufügen
+### 3. Add Custom Editor Snippets
 
-Um neue Schnelltipp-Kürzel (wie `sbox`, `sindent`) im VS Code Editor hinzuzufügen, ergänze einfach die Datei [`snippets/markdown.json`](file:///Volumes/SanDisk1TB/proj/markdown-it-extensible/vscode-extension/snippets/markdown.json):
+To add new quick-completion snippets (like `sbox`, `sindent`) in the VS Code Editor, add definitions to [`snippets/markdown.json`](file:///Volumes/SanDisk1TB/proj/markdown-it-extensible/vscode-extension/snippets/markdown.json):
 
 ```json
 "Warning Box": {
   "prefix": "swarn",
   "body": [
-    "::: warning-box [${1:Titel}]",
+    "::: warning-box [${1:Title}]",
     "${0:$TM_SELECTED_TEXT}",
     ":::"
   ],
-  "description": "Fügt eine benutzerdefinierte Warning-Box ein"
+  "description": "Inserts a custom warning box container"
 }
 ```
 
-### 4. Integration von SVG-Grafiken und Icons
+### 4. Integration of SVG Graphics and Icons
 
-Es gibt zwei bewährte Wege, um SVG-Grafiken in die VS Code Markdown-Vorschau einzubinden:
+There are two recommended methods for integrating SVG graphics into the VS Code Markdown preview:
 
 #### Option A: Automatic Box Icons via CSS Data-URL (`::before` / `::after`)
-Ideal für automatische Icons an Boxen (z. B. das Verkehrsschild-Warnsymbol in `::: important`):
+Ideal for attaching automatic icons to container boxes (such as the traffic sign icon in `::: important`):
 
 ```css
 .custom-block.important {
@@ -160,19 +164,19 @@ Ideal für automatische Icons an Boxen (z. B. das Verkehrsschild-Warnsymbol in `
 }
 ```
 
-> **Wichtiger Tipp für Data-URLs:**
-> - Ersetze `#` im SVG durch `%23` (`fill='%23ee2c30'`).
-> - Setze explizite Abmessungen `width` und `height` auf dem Pseudoelement (`width: 2.8rem; height: 2.8rem;`).
+> **Important Data-URL Tips:**
+> - Replace hex color code `#` symbols with `%23` (`fill='%23ee2c30'`).
+> - Always specify explicit `width` and `height` properties on the pseudo-element (`width: 2.8rem; height: 2.8rem;`).
 
-#### Option B: SVG-Dateien im Markdown-Dokument (`::: media`)
-Für Abbildungen und Vektordiagramme direkt im Dokument:
+#### Option B: SVG Files inside Markdown Documents (`::: media`)
+For embedding vector graphics and technical diagrams directly inside documents:
 
 ```markdown
 ::: media
-![Systemarchitektur](./diagrams/architecture.svg)
-(Bildquelle: [Details](/licenses))
+![System Architecture](./diagrams/architecture.svg)
+(Image source: [Details](/licenses))
 :::
 ```
 
 ---
-*Gebaut gemäß den Projektregeln "The Scholarly Synthesis".*
+*Built according to "The Scholarly Synthesis" standards.*

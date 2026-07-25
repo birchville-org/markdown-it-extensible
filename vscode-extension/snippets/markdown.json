@@ -31,7 +31,7 @@
     "body": [
       "::: media",
       "![${1:Caption (one line)}](/images/${2:lektXXXX/image.png})",
-      "(Bildquelle: [Details](/licenses#${3:lektXXXX}))",
+      "(Image source: [Details](/licenses#${3:lektXXXX}))",
       ":::"
     ],
     "description": "Media block for scholarly image insertion"
