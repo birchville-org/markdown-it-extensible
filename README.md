@@ -13,7 +13,7 @@ npm install markdown-it-extensible
 
 ---
 
-## Configuration & Usage
+## Configuration & Basic Usage
 
 ```javascript
 const md = require('markdown-it')();
@@ -25,7 +25,7 @@ md.use(extensiblePlugin, {
     { name: 'grammar-box', className: 'grammar-box' },
     { name: 'important', className: 'important' },
     { name: 'note-box', className: 'note-box' },
-    { name: 'custom-warning', className: 'alert-red' } // <-- Custom block container
+    { name: 'custom-warning', className: 'alert-red' }
   ],
 
   // 2. Configurable Inline Directives (:<name>[Content])
@@ -39,26 +39,56 @@ md.use(extensiblePlugin, {
 
 ---
 
-## Features
+## Creating, Customizing & Removing Syntax Elements
 
-### 1. Configurable & Zero-Code Inline Directives (`:<name>[Content]`)
-- **Default Directives out-of-the-box:**
-  - `:sig[Text]` ➔ `<strong class="signalrot">Text</strong>` (Signal Red)
-  - `:mark[Text]` ➔ `<mark class="marker-yellow">Text</mark>` (Yellow Highlighter)
-  - `:br` ➔ `<br>` (Intra-cell line break)
-  - `:indent` ➔ `<span class="indent-inline"></span>` (Intra-cell indent)
-  - `《संस्कृतम्》` ➔ `<span class="sanskrit-dev">संस्कृतम्</span>` (Sanskrit)
-- **Zero-Code Automatic Fallback:**  
-  Any unregistered directive like `:custom[Text]` is automatically rendered as `<span class="custom">Text</span>`. You can introduce new inline elements purely by styling `.custom` in your CSS!
+### 1. How to Create a New Inline Syntax Element (`:<name>[<content>]`)
 
-### 2. Configurable Block Containers (`:::name[Title]`)
-- Fully configurable container blocks supporting title headers (`:::grammar-box[Title]`) and nesting.
+- **Option A (Via Configuration):** Add an entry to the `inlineDirectives` array:
+  ```javascript
+  { name: 'highlight', className: 'marker-green', tag: 'mark' }
+  ```
+  Writing `:highlight[Text]` in Markdown now renders `<mark class="marker-green">Text</mark>`.
+
+- **Option B (Zero-Code CSS Fallback):**  
+  Simply write `:my-style[Text]` directly in your Markdown document. `markdown-it-extensible` automatically outputs `<span class="my-style">Text</span>`. You can introduce new inline elements purely by defining `.my-style` in your CSS!
+
+### 2. How to Create a New Block Container (`:::<name>[Title]`)
+
+Add an entry to `blockContainers`:
+```javascript
+{ name: 'alert-box', className: 'alert-box-style' }
+```
+Writing `::: alert-box[Warning Title]` renders:
+```html
+<div class="alert-box-style custom-block">
+  <div class="md-box__title">Warning Title</div>
+  ...
+</div>
+```
+
+### 3. How to Remove or Override Existing Syntax Elements
+
+Pass your own custom arrays for `blockContainers` or `inlineDirectives` when initializing the plugin. Only the elements explicitly listed in your configuration array will be enabled, giving you full control to remove unwanted syntax elements or rename CSS classes.
 
 ---
 
-## VS Code Extension & Client Projects
+## Default Built-in Elements
+
+### Inline Directives
+- `:sig[Text]` ➔ `<strong class="signalrot">Text</strong>` (Signal Red)
+- `:mark[Text]` ➔ `<mark class="marker-yellow">Text</mark>` (Yellow Highlighter)
+- `:br` ➔ `<br>` (Intra-cell line break)
+- `:indent` ➔ `<span class="indent-inline"></span>` (Intra-cell indent)
+- `《संस्कृतम्》` ➔ `<span class="sanskrit-dev">संस्कृतम्</span>` (Sanskrit)
+
+### Block Containers
+- `::: grammar-box`, `::: grammar-box2`, `::: important`, `::: note-box`, `::: media`, `::: center`, `::: metrik-schema`, `::: deleteme-box`, `::: laut-table`, `::: indent`, `::: compact`, `::: no-header`.
+
+---
+
+## VS Code Extension & Ecosystem
 
 This plugin is the shared core engine for:
+- **VS Code Extension** (located in [`/vscode-extension`](./vscode-extension))
 - **Zentauri Desktop Editor**
 - **Payer Web Application**
-- **VS Code Extension** (located in [`/vscode-extension`](./vscode-extension))
