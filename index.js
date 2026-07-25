@@ -49,24 +49,28 @@ module.exports = function scholarlyPlugin(md, options = {}) {
     });
   });
 
-  // 2. Fix for markdown-it-attrs tables tbody calculate error with markdown-it-multimd-table
-  md.core.ruler.before('curly_attributes', 'table_meta_fix', (state) => {
-    for (let i = 0; i < state.tokens.length; i++) {
-      const token = state.tokens[i];
-      if (token.type === 'tbody_close') {
-        token.type = 'tbody_close_temp';
+  // 2. Fix for markdown-it-attrs tables tbody calculate error with markdown-it-multimd-table (safely handled)
+  try {
+    md.core.ruler.before('curly_attributes', 'table_meta_fix', (state) => {
+      for (let i = 0; i < state.tokens.length; i++) {
+        const token = state.tokens[i];
+        if (token.type === 'tbody_close') {
+          token.type = 'tbody_close_temp';
+        }
       }
-    }
-  });
+    });
 
-  md.core.ruler.after('curly_attributes', 'table_meta_restore', (state) => {
-    for (let i = 0; i < state.tokens.length; i++) {
-      const token = state.tokens[i];
-      if (token.type === 'tbody_close_temp') {
-        token.type = 'tbody_close';
+    md.core.ruler.after('curly_attributes', 'table_meta_restore', (state) => {
+      for (let i = 0; i < state.tokens.length; i++) {
+        const token = state.tokens[i];
+        if (token.type === 'tbody_close_temp') {
+          token.type = 'tbody_close';
+        }
       }
-    }
-  });
+    });
+  } catch (e) {
+    // If curly_attributes rule is not registered in this markdown-it instance, safely skip
+  }
 
   // 3. Dynamic Inline Directives (:sig[...], :mark[...], etc.) & Scholarly syntax (:br, :indent, ⟪Devanagari⟫)
   const inlineDirectives = (options.inlineDirectives && options.inlineDirectives.length > 0)
@@ -84,7 +88,7 @@ module.exports = function scholarlyPlugin(md, options = {}) {
     });
   });
 
-  const SCHOLARLY_RE = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g;
+  const getScholarlyRe = () => /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g;
 
   md.core.ruler.after('linkify', 'scholarly_fixes', (state) => {
     state.tokens.forEach(token => {
@@ -96,13 +100,13 @@ module.exports = function scholarlyPlugin(md, options = {}) {
           return;
         }
 
-        if (!SCHOLARLY_RE.test(child.content)) {
+        if (!getScholarlyRe().test(child.content)) {
           newChildren.push(child);
           return;
         }
 
         function processContent(content) {
-          const parts = content.split(SCHOLARLY_RE);
+          const parts = content.split(getScholarlyRe());
           parts.forEach(part => {
             if (!part) return;
 

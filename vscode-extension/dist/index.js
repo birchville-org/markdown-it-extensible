@@ -157,22 +157,25 @@ ${titleHtml}`;
           }
         });
       });
-      md.core.ruler.before("curly_attributes", "table_meta_fix", (state) => {
-        for (let i = 0; i < state.tokens.length; i++) {
-          const token = state.tokens[i];
-          if (token.type === "tbody_close") {
-            token.type = "tbody_close_temp";
+      try {
+        md.core.ruler.before("curly_attributes", "table_meta_fix", (state) => {
+          for (let i = 0; i < state.tokens.length; i++) {
+            const token = state.tokens[i];
+            if (token.type === "tbody_close") {
+              token.type = "tbody_close_temp";
+            }
           }
-        }
-      });
-      md.core.ruler.after("curly_attributes", "table_meta_restore", (state) => {
-        for (let i = 0; i < state.tokens.length; i++) {
-          const token = state.tokens[i];
-          if (token.type === "tbody_close_temp") {
-            token.type = "tbody_close";
+        });
+        md.core.ruler.after("curly_attributes", "table_meta_restore", (state) => {
+          for (let i = 0; i < state.tokens.length; i++) {
+            const token = state.tokens[i];
+            if (token.type === "tbody_close_temp") {
+              token.type = "tbody_close";
+            }
           }
-        }
-      });
+        });
+      } catch (e) {
+      }
       const inlineDirectives = options.inlineDirectives && options.inlineDirectives.length > 0 ? options.inlineDirectives : [
         { name: "sig", className: "signalrot", tag: "strong" },
         { name: "mark", className: "marker-yellow", tag: "mark" }
@@ -184,7 +187,7 @@ ${titleHtml}`;
           tag: dir.tag || "span"
         });
       });
-      const SCHOLARLY_RE = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g;
+      const getScholarlyRe = () => /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g;
       md.core.ruler.after("linkify", "scholarly_fixes", (state) => {
         state.tokens.forEach((token) => {
           if (token.type !== "inline") return;
@@ -194,12 +197,12 @@ ${titleHtml}`;
               newChildren.push(child);
               return;
             }
-            if (!SCHOLARLY_RE.test(child.content)) {
+            if (!getScholarlyRe().test(child.content)) {
               newChildren.push(child);
               return;
             }
             function processContent(content) {
-              const parts = content.split(SCHOLARLY_RE);
+              const parts = content.split(getScholarlyRe());
               parts.forEach((part) => {
                 if (!part) return;
                 if (part.match(/^[⟪《].*[⟫⟩》](?:\s*\|\|?)?$/)) {
