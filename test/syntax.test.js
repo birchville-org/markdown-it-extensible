@@ -28,14 +28,22 @@ test('1. Feature Tests: Standard Syntax Elements', async (t) => {
     assert.match(html, /<mark class="marker-yellow">Yellow Highlight<\/mark>/);
   });
 
-  await t.test('1.3 Table line break :br', () => {
-    const html = md.render(':br');
-    assert.match(html, /<br>/);
+  await t.test('1.3 Table line break :br (outside vs inside table)', () => {
+    const outsideHtml = md.render('Text with :br outside table');
+    assert.match(outsideHtml, /Text with :br outside table/);
+    assert.doesNotMatch(outsideHtml, /<br>/);
+
+    const insideHtml = md.render('| col |\n|---|\n| cell :br text |');
+    assert.match(insideHtml, /<br>/);
   });
 
-  await t.test('1.4 Table indent :indent', () => {
-    const html = md.render(':indent');
-    assert.match(html, /<span class="indent-inline"><\/span>/);
+  await t.test('1.4 Table indent :indent (outside vs inside table)', () => {
+    const outsideHtml = md.render('Text with :indent outside table');
+    assert.match(outsideHtml, /Text with :indent outside table/);
+    assert.doesNotMatch(outsideHtml, /<span class="indent-inline">/);
+
+    const insideHtml = md.render('| col |\n|---|\n| cell :indent text |');
+    assert.match(insideHtml, /<span class="indent-inline"><\/span>/);
   });
 
   await t.test('1.5 Sanskrit brackets', () => {

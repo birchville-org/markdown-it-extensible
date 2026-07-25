@@ -187,22 +187,29 @@ ${titleHtml}`;
           tag: dir.tag || "span"
         });
       });
-      const getScholarlyRe = () => /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g;
+      const getScholarlyRe = (inTable = false) => inTable ? /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g : /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\])/g;
       md.core.ruler.after("linkify", "scholarly_fixes", (state) => {
-        state.tokens.forEach((token) => {
-          if (token.type !== "inline") return;
+        let insideTable = false;
+        for (let i = 0; i < state.tokens.length; i++) {
+          const token = state.tokens[i];
+          if (token.type === "table_open") {
+            insideTable = true;
+          } else if (token.type === "table_close") {
+            insideTable = false;
+          }
+          if (token.type !== "inline") continue;
           let newChildren = [];
           token.children?.forEach((child) => {
             if (child.type !== "text") {
               newChildren.push(child);
               return;
             }
-            if (!getScholarlyRe().test(child.content)) {
+            if (!getScholarlyRe(insideTable).test(child.content)) {
               newChildren.push(child);
               return;
             }
             function processContent(content) {
-              const parts = content.split(getScholarlyRe());
+              const parts = content.split(getScholarlyRe(insideTable));
               parts.forEach((part) => {
                 if (!part) return;
                 if (part.match(/^[⟪《].*[⟫⟩》](?:\s*\|\|?)?$/)) {
@@ -242,9 +249,9 @@ ${titleHtml}`;
                   const closeTag = new state.Token("html_inline", "", 0);
                   closeTag.content = `</${tagName}>`;
                   newChildren.push(closeTag);
-                } else if (part === ":br") {
+                } else if (part === ":br" && insideTable) {
                   newChildren.push(new state.Token("hardbreak", "br", 0));
-                } else if (part === ":indent") {
+                } else if (part === ":indent" && insideTable) {
                   const span = new state.Token("html_inline", "", 0);
                   span.content = '<span class="indent-inline"></span>';
                   newChildren.push(span);
@@ -258,7 +265,7 @@ ${titleHtml}`;
             processContent(child.content);
           });
           token.children = newChildren;
-        });
+        }
       });
     };
   }

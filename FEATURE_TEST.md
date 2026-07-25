@@ -12,7 +12,7 @@ Dieses Dokument enthält Testbeispiele für alle unterstützten Block-Container,
   - Einfaches Sanskrit: 《धर्मः》
   - Sanskrit mit Einfach-Danda: 《धर्मः |》
   - Sanskrit mit Doppel-Danda: 《धर्मः ||》
-- **Intra-Zellen Umbruch & Einzug:** Hier ist ein Umbruch: :br und hier eine Einrückung: :indent im Text.
+- **Intra-Zellen Umbruch & Einzug (Tabellen-exklusiv):** In normalen Absätzen bleiben `:br` und `:indent` unberührt als Fließtext stehen. Sie werden exklusiv innerhalb von Tabellenzellen ausgewertet.
 - **Zero-Code Custom Inline Directive:** Dies ist ein :custom-tag[benutzerdefiniertes Tag] ohne JS-Code.
 
 ---

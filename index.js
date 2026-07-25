@@ -88,11 +88,23 @@ module.exports = function scholarlyPlugin(md, options = {}) {
     });
   });
 
-  const getScholarlyRe = () => /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g;
+  const getScholarlyRe = (inTable = false) => inTable
+    ? /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g
+    : /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\])/g;
 
   md.core.ruler.after('linkify', 'scholarly_fixes', (state) => {
-    state.tokens.forEach(token => {
-      if (token.type !== 'inline') return;
+    let insideTable = false;
+
+    for (let i = 0; i < state.tokens.length; i++) {
+      const token = state.tokens[i];
+      if (token.type === 'table_open') {
+        insideTable = true;
+      } else if (token.type === 'table_close') {
+        insideTable = false;
+      }
+
+      if (token.type !== 'inline') continue;
+
       let newChildren = [];
       token.children?.forEach(child => {
         if (child.type !== 'text') {
@@ -100,13 +112,13 @@ module.exports = function scholarlyPlugin(md, options = {}) {
           return;
         }
 
-        if (!getScholarlyRe().test(child.content)) {
+        if (!getScholarlyRe(insideTable).test(child.content)) {
           newChildren.push(child);
           return;
         }
 
         function processContent(content) {
-          const parts = content.split(getScholarlyRe());
+          const parts = content.split(getScholarlyRe(insideTable));
           parts.forEach(part => {
             if (!part) return;
 
@@ -157,12 +169,12 @@ module.exports = function scholarlyPlugin(md, options = {}) {
               closeTag.content = `</${tagName}>`;
               newChildren.push(closeTag);
             } 
-            // Intra-cell line break
-            else if (part === ':br') {
+            // Intra-cell line break (table only)
+            else if (part === ':br' && insideTable) {
               newChildren.push(new state.Token('hardbreak', 'br', 0));
             } 
-            // Intra-cell indent
-            else if (part === ':indent') {
+            // Intra-cell indent (table only)
+            else if (part === ':indent' && insideTable) {
               const span = new state.Token('html_inline', '', 0);
               span.content = '<span class="indent-inline"></span>';
               newChildren.push(span);
@@ -178,6 +190,6 @@ module.exports = function scholarlyPlugin(md, options = {}) {
         processContent(child.content);
       });
       token.children = newChildren;
-    });
+    }
   });
 };
