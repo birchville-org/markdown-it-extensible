@@ -258,7 +258,8 @@ html[dir="rtl"] .vp-doc em {
 /* Devanagari in grammar-box tables: same red as everywhere else */
 
 
-/* Custom Blocks (Grammar, Media, etc.) */
+/* Custom Blocks (Grammar, Media, Note, etc.) */
+.custom-block.grammar-box,
 .vp-doc .custom-block.grammar-box {
   background-color: #fefce8 !important; /* Light yellow parity with original */
   border: none !important;
@@ -268,17 +269,21 @@ html[dir="rtl"] .vp-doc em {
   border-radius: 0 8px 8px 0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   font-size: 1.1rem !important; /* Standardize font size for the whole box */
-  color: var(--vp-c-text-1) !important; /* Use primary ink color */
+  color: #1e293b !important;
 }
 
-.dark .vp-doc .custom-block.grammar-box {
+.dark .custom-block.grammar-box,
+.dark .vp-doc .custom-block.grammar-box,
+.vscode-dark .custom-block.grammar-box {
   background-color: #241500 !important;
   border-left-color: #eab308 !important;
+  color: #fef08a !important;
 }
 
 /* Custom Block: Grammar-Box 2 (Orange background, bold styling) */
+.custom-block.grammar-box2,
 .vp-doc .custom-block.grammar-box2 {
-  background-color: #ffedd5 !important; /* Light orange / warm peach parity with original #FFCC66 */
+  background-color: #ffedd5 !important; /* Light orange / warm peach */
   border: none !important;
   border-left: 5px solid #ea580c !important; /* Deep Orange */
   margin: 1.5rem 0;
@@ -286,19 +291,24 @@ html[dir="rtl"] .vp-doc em {
   border-radius: 0 8px 8px 0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   font-size: 1.1rem !important;
-  color: var(--vp-c-text-1) !important;
-  font-weight: 600 !important; /* Bold styling - wie im original */
+  color: #431407 !important;
+  font-weight: 600 !important;
 }
 
-.dark .vp-doc .custom-block.grammar-box2 {
+.dark .custom-block.grammar-box2,
+.dark .vp-doc .custom-block.grammar-box2,
+.vscode-dark .custom-block.grammar-box2 {
   background-color: #361e04 !important;
   border-left-color: #ea580c !important;
+  color: #ffedd5 !important;
 }
 
+.custom-block.grammar-box2 .custom-block-title,
 .vp-doc .custom-block.grammar-box2 .custom-block-title {
   display: none;
 }
 
+.grammar-box2 blockquote,
 .vp-doc .grammar-box2 blockquote {
   border-left: none !important;
   background-color: transparent !important;
@@ -308,6 +318,7 @@ html[dir="rtl"] .vp-doc em {
   color: inherit !important;
 }
 
+.grammar-box2 blockquote p,
 .vp-doc .grammar-box2 blockquote p {
   font-weight: inherit !important;
   font-size: 1em !important;
@@ -315,33 +326,40 @@ html[dir="rtl"] .vp-doc em {
   color: inherit !important;
 }
 
-/* Note Box (Minimalist scholarly asides) */
+/* Note Box (Minimalist scholarly asides - discrete slate gray) */
+.custom-block.note-box,
+.custom-block.tip,
 .vp-doc .custom-block.note-box,
 .vp-doc .custom-block.tip {
-  background-color: rgba(72, 98, 110, 0.03) !important; /* Extremely subtle slate tint */
+  background-color: #f8fafc !important; /* Discrete slate tint */
   border: none !important;
-  border-left: 3px solid var(--vp-c-text-2) !important; /* Thinner Slate Grey border */
+  border-left: 4px solid #64748b !important; /* Slate Grey border */
   margin: 1.5rem 0;
-  padding: 0.75rem 1.25rem;
-  border-radius: 0;
-  box-shadow: none !important;
+  padding: 0.85rem 1.25rem;
+  border-radius: 0 6px 6px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   font-size: 1.05rem !important;
-  color: var(--vp-c-text-2) !important; /* Slightly softer text color for notes */
+  color: #334155 !important;
 }
 
+.dark .custom-block.note-box,
+.dark .custom-block.tip,
 .dark .vp-doc .custom-block.note-box,
-.dark .vp-doc .custom-block.tip {
-  background-color: rgba(232, 224, 211, 0.04) !important;
-  border-left-color: #64748b !important;
+.dark .vp-doc .custom-block.tip,
+.vscode-dark .custom-block.note-box,
+.vscode-dark .custom-block.tip {
+  background-color: #1e293b !important;
+  border-left-color: #94a3b8 !important;
+  color: #f1f5f9 !important;
 }
 
+.custom-block.note-box .custom-block-title,
+.custom-block.tip .custom-block-title,
 .vp-doc .custom-block.note-box .custom-block-title,
-.vp-doc .custom-block.tip .custom-block-title {
-  display: none !important;
-}
-
+.vp-doc .custom-block.tip .custom-block-title,
+.custom-block.grammar-box .custom-block-title,
 .vp-doc .custom-block.grammar-box .custom-block-title {
-  display: none; /* We handle titles manually or leave them blank */
+  display: none !important;
 }
 
 /* Suppress nested blockquote borders/backgrounds in grammar boxes for original parity */
