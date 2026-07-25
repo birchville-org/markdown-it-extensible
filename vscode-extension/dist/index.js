@@ -109,8 +109,29 @@ var require_markdown_it_container = __commonJS({
 // ../index.js
 var require_index = __commonJS({
   "../index.js"(exports2, module2) {
+    var fs2 = require("fs");
+    var path = require("path");
     var container = require_markdown_it_container();
+    var cachedCss = "";
+    try {
+      cachedCss = fs2.readFileSync(path.join(__dirname, "vscode-extension/media/payer-theme.css"), "utf8");
+    } catch (e) {
+    }
     module2.exports = function scholarlyPlugin(md, options = {}) {
+      const injectStyles = options.injectStyles !== false;
+      if (injectStyles && cachedCss) {
+        md.core.ruler.push("extensible_styles_inject", (state) => {
+          if (state.tokens.length > 0 && !state.env.__extensibleStylesInjected) {
+            state.env.__extensibleStylesInjected = true;
+            const styleToken = new state.Token("html_block", "", 0);
+            styleToken.content = `<style>
+${cachedCss}
+</style>
+`;
+            state.tokens.unshift(styleToken);
+          }
+        });
+      }
       const blockContainers = options.blockContainers && options.blockContainers.length > 0 ? options.blockContainers : [
         { name: "grammar-box", className: "grammar-box" },
         { name: "grammarbox", className: "grammar-box" },
@@ -274,17 +295,35 @@ ${titleHtml}`;
 // src/index.js
 var extensiblePlugin = require_index();
 var vscode = require("vscode");
-function extendMarkdownIt(md) {
+var fs = require("fs");
+function logDebug(msg) {
   try {
-    const config = vscode.workspace.getConfiguration("extensibleMarkdown");
-    const blockContainers = config.get("blockContainers") || [];
-    const inlineDirectives = config.get("inlineDirectives") || [];
-    return md.use(extensiblePlugin, {
+    fs.appendFileSync("/tmp/vscode-extensible-debug.log", (/* @__PURE__ */ new Date()).toISOString() + " " + msg + "\n");
+  } catch (e) {
+  }
+}
+logDebug("Module src/index.js loaded");
+function extendMarkdownIt(md) {
+  logDebug("extendMarkdownIt called!");
+  try {
+    let blockContainers = [];
+    let inlineDirectives = [];
+    if (typeof vscode !== "undefined" && vscode.workspace) {
+      const config = vscode.workspace.getConfiguration("extensibleMarkdown");
+      blockContainers = config.get("blockContainers") || [];
+      inlineDirectives = config.get("inlineDirectives") || [];
+      logDebug(`Config loaded: ${blockContainers.length} containers, ${inlineDirectives.length} directives`);
+    } else {
+      logDebug("vscode.workspace not available");
+    }
+    const res = md.use(extensiblePlugin, {
       blockContainers,
       inlineDirectives
     });
+    logDebug("md.use(extensiblePlugin) returned successfully");
+    return res;
   } catch (e) {
-    console.error("Error extending MarkdownIt:", e);
+    logDebug("Error in extendMarkdownIt: " + (e.stack || e));
     return md.use(extensiblePlugin);
   }
 }

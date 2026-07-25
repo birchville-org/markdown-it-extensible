@@ -1,6 +1,26 @@
+const fs = require('fs');
+const path = require('path');
 const container = require('markdown-it-container');
 
+let cachedCss = '';
+try {
+  cachedCss = fs.readFileSync(path.join(__dirname, 'vscode-extension/media/payer-theme.css'), 'utf8');
+} catch (e) {}
+
 module.exports = function scholarlyPlugin(md, options = {}) {
+  const injectStyles = options.injectStyles !== false;
+
+  if (injectStyles && cachedCss) {
+    md.core.ruler.push('extensible_styles_inject', (state) => {
+      if (state.tokens.length > 0 && !state.env.__extensibleStylesInjected) {
+        state.env.__extensibleStylesInjected = true;
+        const styleToken = new state.Token('html_block', '', 0);
+        styleToken.content = `<style>\n${cachedCss}\n</style>\n`;
+        state.tokens.unshift(styleToken);
+      }
+    });
+  }
+
   // 1. Custom Block Containers (dynamically configurable)
   const blockContainers = (options.blockContainers && options.blockContainers.length > 0) 
     ? options.blockContainers 

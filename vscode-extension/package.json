@@ -13,6 +13,7 @@
   },
   "main": "./dist/index.js",
   "activationEvents": [
+    "*",
     "onLanguage:markdown"
   ],
   "categories": [

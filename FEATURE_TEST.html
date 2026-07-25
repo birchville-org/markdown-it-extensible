@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Feature Test Preview</title>
+  <style>
 
 
 html {
@@ -1112,3 +1118,142 @@ select.control-btn,
   font-weight: 600;
   margin-bottom: 8px;
 }
+
+  </style>
+</head>
+<body style="max-width: 900px; margin: 2rem auto; padding: 0 1rem;">
+<h1>Feature Test Suite — markdown-it-extensible (v1.1.0)</h1>
+<p>Dieses Dokument enthält Testbeispiele für alle unterstützten Block-Container, Inline-Direktiven, Scholarly Sanskrit Syntaxen, Tabellen und SVG-Grafiken zum visuellen Testen in VS Code oder Zentauri.</p>
+<hr>
+<h2>1. Inline-Direktiven &amp; Hervorhebungen</h2>
+<ul>
+<li><strong>Signalrot (Red Highlight):</strong> Dies ist <strong class="signalrot">signalroter Text</strong> mitten im Satz.</li>
+<li><strong>Gelber Leuchtstift (Marker):</strong> Dies ist <mark class="marker-yellow">gelb hervorgehobener Text</mark> für wichtige Passagen.</li>
+<li><strong>Sanskrit-Formatierung:</strong>
+<ul>
+<li>Einfaches Sanskrit: <span class="sanskrit-dev" translate="no" lang="sa">धर्मः</span></li>
+<li>Sanskrit mit Einfach-Danda: <span class="sanskrit-dev" translate="no" lang="sa">धर्मः ।</span></li>
+<li>Sanskrit mit Doppel-Danda: <span class="sanskrit-dev" translate="no" lang="sa">धर्मः ॥</span></li>
+</ul>
+</li>
+<li><strong>Intra-Zellen Umbruch &amp; Einzug (Tabellen-exklusiv):</strong> In normalen Absätzen bleiben <code>:br</code> und <code>:indent</code> unberührt als Fließtext stehen. Sie werden exklusiv innerhalb von Tabellenzellen ausgewertet.</li>
+<li><strong>Zero-Code Custom Inline Directive:</strong> Dies ist ein <span class="custom-tag">benutzerdefiniertes Tag</span> ohne JS-Code.</li>
+</ul>
+<hr>
+<h2>2. Block-Container (<code>::: name [Titel]</code>)</h2>
+<h3>Important Box (Violett mit Verkehrszeichen-SVG)</h3>
+<div class="important custom-block">
+<div class="md-box__title">Wichtiger Hinweis</div>
+<p><strong>Achtung:</strong> Diese Box besitzt einen violetten linken Rand, ein Verkehrsschild-Warnsymbol auf der linken Seite und ein schimmerndes Violett als Hintergrund.</p>
+</div>
+<h3>Grammar Box (Gelb / Gold)</h3>
+<div class="grammar-box custom-block">
+<div class="md-box__title">Grammatik-Regel</div>
+<p>Dies ist eine Standard-Grammatikbox für Regeln, Paradigmen und Lautgesetze.</p>
+</div>
+<h3>Advanced Grammar Box (Orange)</h3>
+<div class="grammar-box2 custom-block">
+<div class="md-box__title">Fortgeschrittene Grammatik</div>
+<p>Dies ist eine Grammatikbox2 mit kräftigem orangefarbenem Akzent für vertiefende Regeln.</p>
+</div>
+<h3>Didactic Note Box (Diskretes Grau)</h3>
+<div class="note-box custom-block">
+<p>Dies ist eine Anmerkungs-Box für didaktische Hinweise, Fußnoten und Querverweise.</p>
+</div>
+<h3>Centered Content Block (Zentrierter Text)</h3>
+<div class="center custom-block">
+<p><em><strong>ॐ</strong></em>
+Dharmo rakṣati rakṣitaḥ</p>
+</div>
+<h3>Media Container (Bilder &amp; SVGs)</h3>
+<div class="media custom-block">
+<p><img src="./vscode-extension/media/lekt1001.jpg" alt="Payer Beispielsabbildung">
+(Bildquelle: <a href="/licenses#lekt1001">Details</a>)</p>
+</div>
+<hr>
+<h2>3. Tabellen &amp; Zellen-Zusammenfassung (MultiMarkdown)</h2>
+<h3>Tabelle mit In-Zellen Umbrüchen &amp; Signalrot</h3>
+<table>
+<thead>
+<tr>
+<th>Kasus</th>
+<th>Singular</th>
+<th>Plural</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nominativ</td>
+<td><strong class="signalrot">devaḥ</strong> <br>
+ <span class="indent-inline"></span> (Maskulinum)</td>
+<td><strong class="signalrot">devāḥ</strong></td>
+</tr>
+<tr>
+<td>Akkusativ</td>
+<td><strong class="signalrot">devam</strong></td>
+<td><strong class="signalrot">devān</strong></td>
+</tr>
+</tbody>
+</table>
+<h3>Tabellen-Zellen zusammenführen (Colspan &amp; Rowspan)</h3>
+<div class="compact custom-block">
+<table>
+<thead>
+<tr>
+<th>Header 1</th>
+<th>Header 2</th>
+<th>Header 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Verbindung über 3 Spalten (Colspan)</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Vertikale Verbindung (Rowspan)</td>
+<td>Spalte B</td>
+<td>Spalte C</td>
+</tr>
+<tr>
+<td>^^</td>
+<td>Spalte B2</td>
+<td>Spalte C2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3>Tabelle ohne leere Kopfzeile (<code>::: no-header</code>)</h3>
+<div class="no-header custom-block">
+<table>
+<thead>
+<tr>
+<th>Col 1</th>
+<th>Col 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Versteckter Header</td>
+<td>Kein leerer Freiraum oben</td>
+</tr>
+<tr>
+<td>Datenzelle 1</td>
+<td>Datenzelle 2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2>4. Verschachtelte Container (Mehrere Doppelpunkte)</h2>
+<div class="grammar-box custom-block">
+<div class="md-box__title">Verschachtelte Struktur</div>
+<p>Hier ist der äußere Grammatik-Block mit 4 Doppelpunkten (<code>:::: grammar-box</code>).</p>
+<div class="note-box custom-block">
+<p>Dies ist ein innerer Note-Box Block mit 3 Doppelpunkten (<code>::: note-box</code>).</p>
+</div>
+</div>
+
+</body>
+</html>

@@ -1,17 +1,38 @@
 const extensiblePlugin = require('markdown-it-extensible');
 const vscode = require('vscode');
+const fs = require('fs');
+
+function logDebug(msg) {
+    try {
+        fs.appendFileSync('/tmp/vscode-extensible-debug.log', new Date().toISOString() + ' ' + msg + '\n');
+    } catch (e) {}
+}
+
+logDebug('Module src/index.js loaded');
 
 function extendMarkdownIt(md) {
+    logDebug('extendMarkdownIt called!');
     try {
-        const config = vscode.workspace.getConfiguration('extensibleMarkdown');
-        const blockContainers = config.get('blockContainers') || [];
-        const inlineDirectives = config.get('inlineDirectives') || [];
-        return md.use(extensiblePlugin, {
+        let blockContainers = [];
+        let inlineDirectives = [];
+
+        if (typeof vscode !== 'undefined' && vscode.workspace) {
+            const config = vscode.workspace.getConfiguration('extensibleMarkdown');
+            blockContainers = config.get('blockContainers') || [];
+            inlineDirectives = config.get('inlineDirectives') || [];
+            logDebug(`Config loaded: ${blockContainers.length} containers, ${inlineDirectives.length} directives`);
+        } else {
+            logDebug('vscode.workspace not available');
+        }
+
+        const res = md.use(extensiblePlugin, {
             blockContainers: blockContainers,
             inlineDirectives: inlineDirectives
         });
+        logDebug('md.use(extensiblePlugin) returned successfully');
+        return res;
     } catch (e) {
-        console.error('Error extending MarkdownIt:', e);
+        logDebug('Error in extendMarkdownIt: ' + (e.stack || e));
         return md.use(extensiblePlugin);
     }
 }
