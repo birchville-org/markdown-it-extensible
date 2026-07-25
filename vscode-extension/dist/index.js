@@ -268,6 +268,54 @@ ${titleHtml}`;
 var extensiblePlugin = require_index();
 var vscode = require("vscode");
 function activate(context) {
+  const provider = vscode.languages.registerCompletionItemProvider(
+    "markdown",
+    {
+      provideCompletionItems(document, position, token, context2) {
+        const config = vscode.workspace.getConfiguration("extensibleMarkdown");
+        const blockContainers = config.get("blockContainers") || [];
+        const inlineDirectives = config.get("inlineDirectives") || [];
+        const items = [];
+        blockContainers.forEach((containerOpt) => {
+          const name = containerOpt.name;
+          const item = new vscode.CompletionItem(`::: ${name}`, vscode.CompletionItemKind.Snippet);
+          item.detail = `Extensible Block Container (::: ${name})`;
+          item.insertText = new vscode.SnippetString(`::: ${name} [\${1:Title}]
+\${0:$TM_SELECTED_TEXT}
+:::`);
+          item.documentation = new vscode.MarkdownString(`F\xFCgt den Block-Container \`::: ${name}\` ein.`);
+          items.push(item);
+          const shortcut = new vscode.CompletionItem(`s${name.replace(/[^a-zA-Z0-9]/g, "")}`, vscode.CompletionItemKind.Snippet);
+          shortcut.detail = `Shortcut f\xFCr ::: ${name}`;
+          shortcut.insertText = new vscode.SnippetString(`::: ${name} [\${1:Title}]
+\${0:$TM_SELECTED_TEXT}
+:::`);
+          shortcut.documentation = new vscode.MarkdownString(`F\xFCgt den Block-Container \`::: ${name}\` ein.`);
+          items.push(shortcut);
+        });
+        inlineDirectives.forEach((dir) => {
+          const name = dir.name;
+          const item = new vscode.CompletionItem(`:${name}`, vscode.CompletionItemKind.Snippet);
+          item.detail = `Extensible Inline Directive (:${name}[...])`;
+          item.insertText = new vscode.SnippetString(`:${name}[\${1:text}]`);
+          item.documentation = new vscode.MarkdownString(`F\xFCgt die Inline-Direktive \`:${name}[text]\` ein.`);
+          items.push(item);
+          const shortcut = new vscode.CompletionItem(`s${name.replace(/[^a-zA-Z0-9]/g, "")}`, vscode.CompletionItemKind.Snippet);
+          shortcut.detail = `Shortcut f\xFCr :${name}[...]`;
+          shortcut.insertText = new vscode.SnippetString(`:${name}[\${1:text}]`);
+          shortcut.documentation = new vscode.MarkdownString(`F\xFCgt die Inline-Direktive \`:${name}[text]\` ein.`);
+          items.push(shortcut);
+        });
+        return items;
+      }
+    },
+    ":",
+    "s"
+    // Trigger bei Eintippen von ':' oder 's'
+  );
+  if (context && context.subscriptions) {
+    context.subscriptions.push(provider);
+  }
   return {
     extendMarkdownIt(md) {
       const config = vscode.workspace.getConfiguration("extensibleMarkdown");
