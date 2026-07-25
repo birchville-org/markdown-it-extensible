@@ -33,26 +33,64 @@ code --install-extension markdown-it-extensible-vscode-1.1.0.vsix
 ln -s $(pwd)/vscode-extension ~/.vscode/extensions/markdown-it-extensible-vscode
 ```
 
-## Customization & Configuration
+## Customization & Configuration Guide
 
-You can dynamically define new syntax elements and container blocks without modifying the extension source code.
+You can dynamically define new syntax elements, container blocks, and inline directives without modifying the extension source code.
 
-### 1. Define Custom Block Containers (VS Code Settings)
+### How to Access and Change Configuration Settings
 
-Open your VS Code `settings.json` (or navigate to `Extensible Markdown Settings` in GUI settings) and add custom containers under `extensibleMarkdown.blockContainers`:
+There are three ways for users to access and modify their syntax settings:
 
-```json
-"extensibleMarkdown.blockContainers": [
-  {
-    "name": "warning-box",
-    "className": "alert-warning"
-  },
-  {
-    "name": "info-box",
-    "className": "callout-info"
-  }
-]
-```
+#### Method 1: Via VS Code Settings GUI (Graphical Interface)
+
+1. Open Settings: Press `Cmd + ,` (Mac) or `Ctrl + ,` (Windows/Linux).
+2. Search for **`extensibleMarkdown`** in the top search bar.
+3. Edit settings visually:
+   - **`Extensible Markdown: Block Containers`**: Click **Add Item** to add custom container blocks (e.g. `warning-box`).
+   - **`Extensible Markdown: Inline Directives`**: Click **Add Item** to add custom inline tags (e.g. `badge`).
+
+#### Method 2: Via `settings.json` (JSON Configuration File)
+
+To configure elements via code or share configuration across a project team:
+
+1. Open Command Palette: Press `Cmd + Shift + P` or `Ctrl + Shift + P`.
+2. Select settings file:
+   - For **Global User Settings**: Choose `Preferences: Open User Settings (JSON)`.
+   - For **Project Workspace Settings**: Choose `Preferences: Open Workspace Settings (JSON)` (creates `.vscode/settings.json` in your workspace).
+3. Add your custom JSON configuration:
+   ```json
+   {
+     "extensibleMarkdown.blockContainers": [
+       { "name": "warning-box", "className": "alert-warning" }
+     ],
+     "extensibleMarkdown.inlineDirectives": [
+       { "name": "badge", "className": "badge-blue", "tag": "span" }
+     ]
+   }
+   ```
+
+#### Method 3: Linking Custom CSS Styles (`markdown.styles`)
+
+To apply custom colors, borders, or dark mode themes to your custom syntax elements:
+
+1. Create a CSS file in your workspace (e.g. `./styles/custom-preview.css`).
+2. Write your custom CSS rules:
+   ```css
+   .alert-warning {
+     background-color: #fffbe6;
+     border-left: 4px solid #faad14;
+     color: #521c00;
+     padding: 12px 16px;
+   }
+   ```
+3. Link the CSS file in VS Code settings (`settings.json`):
+   ```json
+   {
+     "markdown.styles": [
+       "./styles/custom-preview.css"
+     ]
+   }
+   ```
 
 #### Usage in Markdown Documents:
 

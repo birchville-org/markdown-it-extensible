@@ -70,8 +70,13 @@ Writing `::: alert-box[Warning Title]` renders:
 
 Pass your own custom arrays for `blockContainers` or `inlineDirectives` when initializing the plugin. Only the elements explicitly listed in your configuration array will be enabled, giving you full control to remove unwanted syntax elements or rename CSS classes.
 
-> **Dynamic VS Code Autocomplete & Snippets:**  
-> When used with the [VS Code Extension](./vscode-extension), any custom block container or inline directive added to your configuration automatically generates dynamic editor completion snippets (`::: <name>`, `:<name>`, `s<name>`) directly inside the editor!
+> **How VS Code Users Access and Change Settings:**  
+> When using the [VS Code Extension](./vscode-extension), users never edit extension files or JavaScript source code. Configuration is accessed via:  
+> 1. **VS Code GUI Settings (`Cmd+,` / `Ctrl+,`):** Search for `extensibleMarkdown` to edit container and directive lists visually.  
+> 2. **JSON Settings (`settings.json`):** Add `"extensibleMarkdown.blockContainers"` or `"extensibleMarkdown.inlineDirectives"` to User or Workspace `.vscode/settings.json`.  
+> 3. **Custom CSS (`markdown.styles`):** Link custom CSS preview themes directly via `"markdown.styles": ["./styles.css"]`.  
+>   
+> *All configured elements automatically generate dynamic editor autocomplete snippets (`::: <name>`, `:<name>`, `s<name>`) directly inside the editor.*
 
 ### 4. Integration of SVG Graphics and Icons
 
