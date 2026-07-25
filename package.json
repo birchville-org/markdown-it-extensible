@@ -4,6 +4,9 @@
   "description": "A highly extensible container and inline syntax engine for markdown-it",
 
   "main": "index.js",
+  "scripts": {
+    "test": "node --test"
+  },
   "author": "marcodem",
   "license": "MIT",
   "repository": {
