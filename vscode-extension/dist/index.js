@@ -274,6 +274,20 @@ ${titleHtml}`;
 // src/index.js
 var extensiblePlugin = require_index();
 var vscode = require("vscode");
+function extendMarkdownIt(md) {
+  try {
+    const config = vscode.workspace.getConfiguration("extensibleMarkdown");
+    const blockContainers = config.get("blockContainers") || [];
+    const inlineDirectives = config.get("inlineDirectives") || [];
+    return md.use(extensiblePlugin, {
+      blockContainers,
+      inlineDirectives
+    });
+  } catch (e) {
+    console.error("Error extending MarkdownIt:", e);
+    return md.use(extensiblePlugin);
+  }
+}
 function activate(context) {
   const provider = vscode.languages.registerCompletionItemProvider(
     "markdown",
@@ -324,17 +338,10 @@ function activate(context) {
     context.subscriptions.push(provider);
   }
   return {
-    extendMarkdownIt(md) {
-      const config = vscode.workspace.getConfiguration("extensibleMarkdown");
-      const blockContainers = config.get("blockContainers") || [];
-      const inlineDirectives = config.get("inlineDirectives") || [];
-      return md.use(extensiblePlugin, {
-        blockContainers,
-        inlineDirectives
-      });
-    }
+    extendMarkdownIt
   };
 }
 module.exports = {
-  activate
+  activate,
+  extendMarkdownIt
 };

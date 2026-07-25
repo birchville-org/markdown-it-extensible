@@ -1,6 +1,21 @@
 const extensiblePlugin = require('markdown-it-extensible');
 const vscode = require('vscode');
 
+function extendMarkdownIt(md) {
+    try {
+        const config = vscode.workspace.getConfiguration('extensibleMarkdown');
+        const blockContainers = config.get('blockContainers') || [];
+        const inlineDirectives = config.get('inlineDirectives') || [];
+        return md.use(extensiblePlugin, {
+            blockContainers: blockContainers,
+            inlineDirectives: inlineDirectives
+        });
+    } catch (e) {
+        console.error('Error extending MarkdownIt:', e);
+        return md.use(extensiblePlugin);
+    }
+}
+
 function activate(context) {
     // Dynamischer Snippet-CompletionProvider für den VS Code Editor
     const provider = vscode.languages.registerCompletionItemProvider(
@@ -60,18 +75,11 @@ function activate(context) {
     }
 
     return {
-        extendMarkdownIt(md) {
-            const config = vscode.workspace.getConfiguration('extensibleMarkdown');
-            const blockContainers = config.get('blockContainers') || [];
-            const inlineDirectives = config.get('inlineDirectives') || [];
-            return md.use(extensiblePlugin, {
-                blockContainers: blockContainers,
-                inlineDirectives: inlineDirectives
-            });
-        }
+        extendMarkdownIt
     };
 }
 
 module.exports = {
-    activate
+    activate,
+    extendMarkdownIt
 };
