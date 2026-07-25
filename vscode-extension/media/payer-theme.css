@@ -471,9 +471,9 @@ html[dir="rtl"] .vp-doc em {
 .dark .custom-block.important,
 .dark .vp-doc .custom-block.important,
 .vscode-dark .custom-block.important {
-  background-color: #1e1210 !important;
+  background-color: #2e1065 !important; /* Deep dark violet */
   border-left-color: #a78bfa !important;
-  color: rgba(232, 224, 211, 0.85) !important;
+  color: #f5f3ff !important;
 }
 
 .custom-block.important::before,

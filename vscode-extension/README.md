@@ -133,5 +133,46 @@ Um neue Schnelltipp-Kürzel (wie `sbox`, `sindent`) im VS Code Editor hinzuzufü
 }
 ```
 
+### 4. Integration von SVG-Grafiken und Icons
+
+Es gibt zwei bewährte Wege, um SVG-Grafiken in die VS Code Markdown-Vorschau einzubinden:
+
+#### Option A: Automatic Box Icons via CSS Data-URL (`::before` / `::after`)
+Ideal für automatische Icons an Boxen (z. B. das Verkehrsschild-Warnsymbol in `::: important`):
+
+```css
+.custom-block.important {
+  position: relative;
+  padding-left: 4.5rem !important;
+}
+
+.custom-block.important::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 1rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 2.8rem !important;
+  height: 2.8rem !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,5 95,90 5,90' fill='%23ee2c30' stroke='%23ee2c30' stroke-width='4' stroke-linejoin='round'/%3E%3Cpolygon points='50,18 85,83 15,83' fill='%23ffffff'/%3E%3Cpath d='M50,32 L50,60' stroke='%23231f20' stroke-width='8' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='72' r='5' fill='%23231f20'/%3E%3C/svg%3E") !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+}
+```
+
+> **Wichtiger Tipp für Data-URLs:**
+> - Ersetze `#` im SVG durch `%23` (`fill='%23ee2c30'`).
+> - Setze explizite Abmessungen `width` und `height` auf dem Pseudoelement (`width: 2.8rem; height: 2.8rem;`).
+
+#### Option B: SVG-Dateien im Markdown-Dokument (`::: media`)
+Für Abbildungen und Vektordiagramme direkt im Dokument:
+
+```markdown
+::: media
+![Systemarchitektur](./diagrams/architecture.svg)
+(Bildquelle: [Details](/licenses))
+:::
+```
+
 ---
 *Gebaut gemäß den Projektregeln "The Scholarly Synthesis".*
