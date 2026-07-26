@@ -21,7 +21,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "prepare": "husky"
   },
   "keywords": [
     "markdown-it",
@@ -43,5 +44,8 @@
   },
   "dependencies": {
     "markdown-it-container": "^3.0.0"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }

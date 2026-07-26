@@ -125,3 +125,28 @@ test('2. Dynamic Syntax Modification (Addition & Removal)', async (t) => {
     assert.match(activeHtml, /<div class="note-box custom-block">/);
   });
 });
+
+test('3. Edge Cases, Safety & API Metadata', async (t) => {
+  const md = new MarkdownIt({ html: true }).use(extensiblePlugin, { injectStyles: false });
+
+  await t.test('3.1 Title with Special Characters', () => {
+    const html = md.render('::: grammar-box [<Titel & Test>]\nInhalt\n:::');
+    assert.match(html, /<div class="md-box__title"><Titel & Test><\/div>/);
+  });
+
+  await t.test('3.2 Deeply Nested Containers (4+ Colons)', () => {
+    const html = md.render('::::grammar-box [Outer]\n::::: indent\nInner\n:::::\n::::');
+    assert.match(html, /<div class="grammar-box custom-block">/);
+    assert.match(html, /<div class="indent custom-block">/);
+  });
+
+  await t.test('3.3 API Exports Verification', () => {
+    assert.ok(Array.isArray(extensiblePlugin.DEFAULT_BLOCK_CONTAINERS));
+    assert.ok(Array.isArray(extensiblePlugin.DEFAULT_INLINE_DIRECTIVES));
+    const help = extensiblePlugin.getSyntaxHelp();
+    assert.ok(Array.isArray(help.containers));
+    assert.ok(Array.isArray(help.inline));
+    assert.ok(help.containers.length > 0);
+    assert.ok(help.inline.length > 0);
+  });
+});
