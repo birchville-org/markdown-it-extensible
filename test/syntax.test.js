@@ -65,6 +65,25 @@ test('1. Feature Tests: Standard Syntax Elements', async (t) => {
     const html = md.render('::: grammar-box [Grammatik]\nRule text\n:::');
     assert.match(html, /<div class="grammar-box custom-block">\n<div class="md-box__title">Grammatik<\/div>\n<p>Rule text<\/p>\n<\/div>/);
   });
+
+  await t.test('1.9 Grammar box variations (spaces & hyphens)', () => {
+    const withSpace = md.render('::: grammar-box\nContent\n:::');
+    assert.match(withSpace, /<div class="grammar-box custom-block">/);
+
+    const noSpace = md.render(':::grammar-box\nContent\n:::');
+    assert.match(noSpace, /<div class="grammar-box custom-block">/);
+
+    const multiSpace = md.render(':::   grammar-box\nContent\n:::');
+    assert.match(multiSpace, /<div class="grammar-box custom-block">/);
+  });
+
+  await t.test('1.10 Case-insensitive container matching', () => {
+    const uppercase = md.render('::: GRAMMAR-BOX\nContent\n:::');
+    assert.match(uppercase, /<div class="grammar-box custom-block">/);
+
+    const mixedCase = md.render('::: Grammar-Box [Titel]\nContent\n:::');
+    assert.match(mixedCase, /<div class="grammar-box custom-block">\n<div class="md-box__title">Titel<\/div>/);
+  });
 });
 
 test('2. Dynamic Syntax Modification (Addition & Removal)', async (t) => {

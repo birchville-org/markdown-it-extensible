@@ -49,10 +49,12 @@ module.exports = function scholarlyPlugin(md, options = {}) {
   blockContainers.forEach(containerOpt => {
     const box = containerOpt.name;
     const cssClass = containerOpt.className;
+    const containerRe = new RegExp(`^\\s*${box}(?:\\s+(.*))?$`, 'i');
+
     md.use(container, box, {
-      validate: (params) => params.trim().match(new RegExp(`^${box}(?:\\s+(.*))?$`)),
+      validate: (params) => params.match(containerRe),
       render: (tokens, idx) => {
-        const m = tokens[idx].info.trim().match(new RegExp(`^${box}(?:\\s+(.*))?$`));
+        const m = tokens[idx].info.match(containerRe);
         if (tokens[idx].nesting === 1) {
           let titleHtml = '';
           if (m && m[1]) {
