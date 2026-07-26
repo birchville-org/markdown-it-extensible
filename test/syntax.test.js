@@ -84,6 +84,11 @@ test('1. Feature Tests: Standard Syntax Elements', async (t) => {
     const mixedCase = md.render('::: Grammar-Box [Titel]\nContent\n:::');
     assert.match(mixedCase, /<div class="grammar-box custom-block">\n<div class="md-box__title">Titel<\/div>/);
   });
+
+  await t.test('1.11 Container title without space before bracket', () => {
+    const noSpaceTitle = md.render('::::grammar-box[Titel]\nContent\n::::');
+    assert.match(noSpaceTitle, /<div class="grammar-box custom-block">\n<div class="md-box__title">Titel<\/div>/);
+  });
 });
 
 test('2. Dynamic Syntax Modification (Addition & Removal)', async (t) => {

@@ -49,7 +49,7 @@ module.exports = function scholarlyPlugin(md, options = {}) {
   blockContainers.forEach(containerOpt => {
     const box = containerOpt.name;
     const cssClass = containerOpt.className;
-    const containerRe = new RegExp(`^\\s*${box}(?:\\s+(.*))?$`, 'i');
+    const containerRe = new RegExp(`^\\s*${box}(?:\\s*(.*))?$`, 'i');
 
     md.use(container, box, {
       validate: (params) => params.match(containerRe),
