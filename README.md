@@ -1,7 +1,20 @@
 # markdown-it-extensible (v1.1.0)
 
-A highly extensible container and inline syntax engine for `markdown-it`. 
-Configure custom markdown blocks, warnings, or inline highlights purely via JSON configuration or options – without writing complex Regex parsers or editing JavaScript code.
+A highly extensible, zero-code block container and inline directive syntax engine for [`markdown-it`](https://github.com/markdown-it/markdown-it).
+
+`markdown-it-extensible` allows developers and end-users to create, modify, or extend custom Markdown syntax elements—such as custom styled callout boxes (`::: warning-box [Title]`) or inline highlights (`:mark[Text]`)—purely via JavaScript options, JSON configuration, or CSS classes, without writing custom Regex parsers or modifying plugin source code.
+
+---
+
+## Key Features
+
+- 📦 **Dynamic Block Containers (`::: name [Title]`)**: Add or customize custom callouts with optional title headers.
+- 🎨 **Dynamic Inline Directives (`:name[Content]`)**: Map custom inline markup to any CSS class or HTML tag (`<strong>`, `<mark>`, `<span>`, etc.).
+- 🚀 **Zero-Code CSS Fallback**: Use any `:class-name[Text]` in Markdown—it automatically renders `<span class="class-name">Text</span>` without needing JavaScript registration.
+- 📐 **Multi-Level Nesting & Case-Insensitive Matching**: Handles `::::` nesting and case-insensitive container names (`::: Grammar-Box`, `::: GRAMMAR-BOX`).
+- 📚 **Built-in Scholarly Syntax**: Native support for Sanskrit Devanagari brackets (`《धर्मः》`), intra-table line breaks (`:br`), and intra-table indents (`:indent`).
+- 🔷 **TypeScript First Class Support**: Comes with `index.d.ts` providing full autocomplete, hover docs, and type safety in VS Code and WebStorm.
+- 🛠 **Programmatic Syntax Help API**: Exposes `getSyntaxHelp()` so host applications (like Zentauri, Payer, or custom editors) can dynamically render help modals and cheatsheets.
 
 ---
 
@@ -13,132 +26,213 @@ npm install markdown-it-extensible
 
 ---
 
-## Configuration & Basic Usage
+## Quick Start
 
 ```javascript
-const md = require('markdown-it')();
+const MarkdownIt = require('markdown-it');
 const extensiblePlugin = require('markdown-it-extensible');
 
-md.use(extensiblePlugin, {
-  // 1. Configurable Block Containers (:::name[Title])
-  blockContainers: [
-    { name: 'grammar-box', className: 'grammar-box' },
-    { name: 'important', className: 'important' },
-    { name: 'note-box', className: 'note-box' },
-    { name: 'custom-warning', className: 'alert-red' }
-  ],
+const md = new MarkdownIt({ html: true }).use(extensiblePlugin);
 
-  // 2. Configurable Inline Directives (:<name>[Content])
+// Render Markdown with default containers and directives
+const html = md.render(`
+::: grammar-box [Grammatischer Hinweis]
+Klassifikation der Vokale und Konsonanten.
+:::
+
+Dies ist :sig[Signalrot-Text] und :mark[gelb markierter Text].
+`);
+
+console.log(html);
+```
+
+---
+
+## How to Extend & Modify Syntax Definitions (Core Feature)
+
+### 1. Adding & Customizing Block Containers (`::: name [Title]`)
+
+Pass a custom array to `blockContainers` when initializing the plugin. Each container maps a Markdown trigger name to a generated HTML CSS class `<div class="{className} custom-block">`.
+
+```javascript
+md.use(extensiblePlugin, {
+  blockContainers: [
+    { name: 'warning-box', className: 'alert-red' },
+    { name: 'solution', className: 'solution-card' },
+    { name: 'info', className: 'info-box' }
+  ]
+});
+```
+
+#### Markdown Usage:
+```markdown
+::: warning-box [Achtung!]
+Dies ist eine rot hervorgehobene Warnungsbox.
+:::
+```
+
+#### Rendered HTML:
+```html
+<div class="alert-red custom-block">
+  <div class="md-box__title">Achtung!</div>
+  <p>Dies ist eine rot hervorgehobene Warnungsbox.</p>
+</div>
+```
+
+---
+
+### 2. Adding & Customizing Inline Directives (`:name[Content]`)
+
+Pass a custom array to `inlineDirectives`. You can define the trigger name, the generated CSS class, and the target HTML tag (e.g. `strong`, `mark`, `span`, `em`, `ins`).
+
+```javascript
+md.use(extensiblePlugin, {
   inlineDirectives: [
-    { name: 'sig', className: 'signalrot', tag: 'strong' },        // :sig[Red text]
-    { name: 'mark', className: 'marker-yellow', tag: 'mark' },     // :mark[Yellow text]
-    { name: 'badge', className: 'inline-badge', tag: 'span' }      // :badge[Custom badge]
+    { name: 'highlight', className: 'marker-green', tag: 'mark' },
+    { name: 'danger', className: 'text-red-600', tag: 'strong' },
+    { name: 'badge', className: 'pill-badge', tag: 'span' }
+  ]
+});
+```
+
+#### Markdown Usage:
+```markdown
+Das ist :highlight[grün markierter Text] und ein :badge[v1.0.0] Badge.
+```
+
+#### Rendered HTML:
+```html
+Das ist <mark class="marker-green">grün markierter Text</mark> und ein <span class="pill-badge">v1.0.0</span> Badge.
+```
+
+---
+
+### 3. Zero-Code CSS Inline Directives
+
+If a user writes `:any-custom-class[Some Text]` in Markdown without registering it beforehand in JavaScript, `markdown-it-extensible` automatically falls back to rendering:
+
+```html
+<span class="any-custom-class">Some Text</span>
+```
+
+This allows non-technical users or template designers to introduce new inline styles purely by writing a new class in their CSS stylesheet!
+
+---
+
+### 4. Overriding or Removing Default Syntax Elements
+
+When you pass your own `blockContainers` or `inlineDirectives` array, only the elements explicitly listed in your array are registered. This allows host applications to disable default containers or restrict users to specific allowed syntax blocks.
+
+```javascript
+// Only allow 'note-box' and disable all other default containers
+md.use(extensiblePlugin, {
+  blockContainers: [
+    { name: 'note-box', className: 'note-box' }
   ]
 });
 ```
 
 ---
 
-## Creating, Customizing & Removing Syntax Elements
+## Programmatic Metadata & Syntax Help API
 
-### 1. How to Create a New Inline Syntax Element (`:<name>[<content>]`)
+Applications (like desktop editors, web previewers, or documentation generators) can query syntax help programmatically directly from the plugin:
 
-- **Option A (Via Configuration):** Add an entry to the `inlineDirectives` array:
-  ```javascript
-  { name: 'highlight', className: 'marker-green', tag: 'mark' }
-  ```
-  Writing `:highlight[Text]` in Markdown now renders `<mark class="marker-green">Text</mark>`.
-
-- **Option B (Zero-Code CSS Fallback):**  
-  Simply write `:my-style[Text]` directly in your Markdown document. `markdown-it-extensible` automatically outputs `<span class="my-style">Text</span>`. You can introduce new inline elements purely by defining `.my-style` in your CSS!
-
-### 2. How to Create a New Block Container (`:::<name>[Title]`)
-
-Add an entry to `blockContainers`:
 ```javascript
-{ name: 'alert-box', className: 'alert-box-style' }
-```
-Writing `::: alert-box[Warning Title]` renders:
-```html
-<div class="alert-box-style custom-block">
-  <div class="md-box__title">Warning Title</div>
-  ...
-</div>
-```
+const extensiblePlugin = require('markdown-it-extensible');
 
-### 3. How to Remove or Override Existing Syntax Elements
+// Retrieve syntax metadata for Help Modals or Cheatsheets
+const help = extensiblePlugin.getSyntaxHelp();
+console.log(help.containers);
+// [ { syntax: '::: grammar-box [Titel]', description: 'Erstellt den Block-Container .grammar-box' }, ... ]
 
-Pass your own custom arrays for `blockContainers` or `inlineDirectives` when initializing the plugin. Only the elements explicitly listed in your configuration array will be enabled, giving you full control to remove unwanted syntax elements or rename CSS classes.
+console.log(help.inline);
+// [ { syntax: ':sig[Text]', description: 'Erzeugt <strong class="signalrot">Text</strong>' }, ... ]
 
-> **How VS Code Users Access and Change Settings:**  
-> When using the [VS Code Extension](./vscode-extension), users never edit extension files or JavaScript source code. Configuration is accessed via:  
-> 1. **VS Code GUI Settings (`Cmd+,` / `Ctrl+,`):** Search for `extensibleMarkdown` to edit container and directive lists visually.  
-> 2. **JSON Settings (`settings.json`):** Add `"extensibleMarkdown.blockContainers"` or `"extensibleMarkdown.inlineDirectives"` to User or Workspace `.vscode/settings.json`.  
-> 3. **Custom CSS (`markdown.styles`):** Link custom CSS preview themes directly via `"markdown.styles": ["./styles.css"]`.  
->   
-> *All configured elements automatically generate dynamic editor autocomplete snippets (`::: <name>`, `:<name>`, `s<name>`) directly inside the editor.*
-
-### 4. Integration of SVG Graphics and Icons
-
-There are two recommended methods for integrating SVG graphics into `markdown-it-extensible` and custom themes/extensions:
-
-#### Option A: Decorative Container Icons via CSS Data-URL (`::before` / `::after`)
-Ideal for attaching automatic icons to container boxes (such as the traffic sign icon in `::: important`):
-
-```css
-/* Automatically display icon on the left of the Important box */
-.custom-block.important {
-  position: relative;
-  padding-left: 4.5rem !important;
-}
-
-.custom-block.important::before {
-  content: "" !important;
-  position: absolute !important;
-  left: 1rem !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 2.8rem !important;
-  height: 2.8rem !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,5 95,90 5,90' fill='%23ee2c30' stroke='%23ee2c30' stroke-width='4' stroke-linejoin='round'/%3E%3Cpolygon points='50,18 85,83 15,83' fill='%23ffffff'/%3E%3Cpath d='M50,32 L50,60' stroke='%23231f20' stroke-width='8' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='72' r='5' fill='%23231f20'/%3E%3C/svg%3E") !important;
-  background-size: contain !important;
-  background-repeat: no-repeat !important;
-}
-```
-
-> **Tips for CSS Data-URLs:**
-> 1. Replace hex color code `#` symbols with `%23` (e.g. `fill='%23ee2c30'`).
-> 2. Always set explicit `width` and `height` dimensions on pseudo-elements (e.g. `width: 2.8rem; height: 2.8rem;`), as `::before` elements otherwise default to 0×0 pixels.
-
-#### Option B: SVG Files inside Markdown Documents (`::: media`)
-For embedding vector illustrations and technical diagrams inside document text:
-
-```markdown
-::: media
-![Architecture Diagram](./diagrams/architecture.svg)
-(Image source: [Details](/licenses))
-:::
+// Access default arrays directly
+console.log(extensiblePlugin.DEFAULT_BLOCK_CONTAINERS);
+console.log(extensiblePlugin.DEFAULT_INLINE_DIRECTIVES);
 ```
 
 ---
 
-## Default Built-in Elements
+## TypeScript & IDE Autocomplete Support
 
-### Inline Directives
-- `:sig[Text]` ➔ `<strong class="signalrot">Text</strong>` (Signal Red)
-- `:mark[Text]` ➔ `<mark class="marker-yellow">Text</mark>` (Yellow Highlighter)
-- `:br` ➔ `<br>` (Intra-cell line break)
-- `:indent` ➔ `<span class="indent-inline"></span>` (Intra-cell indent)
-- `《संस्कृतम्》` ➔ `<span class="sanskrit-dev">sanskrit</span>` (Sanskrit)
+`markdown-it-extensible` includes full TypeScript definitions in `index.d.ts`. When configuring the plugin, your IDE will provide autocomplete for options and parameter descriptions:
+
+```typescript
+import MarkdownIt from 'markdown-it';
+import extensiblePlugin, { ScholarlyPluginOptions } from 'markdown-it-extensible';
+
+const options: ScholarlyPluginOptions = {
+  injectStyles: true,
+  blockContainers: [
+    { name: 'custom-card', className: 'custom-card' }
+  ]
+};
+
+const md = new MarkdownIt().use(extensiblePlugin, options);
+```
+
+---
+
+## CSS & Theming Options
+
+### Option A: Automatic CSS Injection (Default)
+By default (`injectStyles: true`), the plugin automatically injects its theme CSS into rendered output.
+
+### Option B: Manual CSS Import
+If you prefer importing CSS in your frontend bundle (Vite, Next.js, Webpack):
+
+```javascript
+// Disable automatic inline injection
+md.use(extensiblePlugin, { injectStyles: false });
+```
+
+```javascript
+// Import CSS in your frontend entry file
+import 'markdown-it-extensible/css';
+```
+
+---
+
+## Default Built-in Elements Reference
 
 ### Block Containers
-- `::: grammar-box`, `::: grammar-box2`, `::: important`, `::: note-box`, `::: media`, `::: center`, `::: metrik-schema`, `::: deleteme-box`, `::: laut-table`, `::: indent`, `::: compact`, `::: no-header`.
+| Syntax | Rendered Class |
+| :--- | :--- |
+| `::: grammar-box [Titel]` | `<div class="grammar-box custom-block">` |
+| `::: grammar-box2 [Titel]` | `<div class="grammar-box2 custom-block">` |
+| `::: important [Titel]` | `<div class="important custom-block">` |
+| `::: note-box [Titel]` | `<div class="note-box custom-block">` |
+| `::: media` | `<div class="media custom-block">` |
+| `::: center` | `<div class="center custom-block">` |
+| `::: indent` | `<div class="indent custom-block">` |
+| `::: compact` | `<div class="compact custom-block">` |
+| `::: metrik-schema` | `<div class="metrik-schema custom-block">` |
+| `::: deleteme-box` | `<div class="deleteme-box custom-block">` |
+
+### Inline Directives
+| Syntax | Rendered HTML |
+| :--- | :--- |
+| `:sig[Text]` | `<strong class="signalrot">Text</strong>` |
+| `:mark[Text]` | `<mark class="marker-yellow">Text</mark>` |
+| `《संस्कृतम्》` | `<span class="sanskrit-dev" translate="no" lang="sa">संस्कृतम्</span>` |
+| `《धर्मः \|\|》` | `<span class="sanskrit-dev" translate="no" lang="sa">धर्मः ॥</span>` |
+| `:br` | `<br>` *(Inside Markdown tables)* |
+| `:indent` | `<span class="indent-inline"></span>` *(Inside Markdown tables)* |
 
 ---
 
-## VS Code Extension & Ecosystem
+## Ecosystem & Integrations
 
-This plugin is the shared core engine for:
-- **VS Code Extension** (located in [`/vscode-extension`](./vscode-extension))
+`markdown-it-extensible` serves as the single source of truth for:
+- **VS Code Extension**: [`extensible-markdown`](./vscode-extension) (Provides live autocomplete snippets in VS Code)
 - **Zentauri Desktop Editor**
 - **Payer Web Application**
+
+---
+
+## License
+
+[MIT](./LICENSE) © marcodem

@@ -1,17 +1,40 @@
 {
   "name": "markdown-it-extensible",
   "version": "1.1.0",
-  "description": "A highly extensible container and inline syntax engine for markdown-it",
-
+  "description": "A highly extensible, zero-code block container and inline directive engine for markdown-it",
   "main": "index.js",
+  "types": "index.d.ts",
   "exports": {
-    ".": "./index.js",
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./index.js",
+      "default": "./index.js"
+    },
     "./css": "./vscode-extension/media/payer-theme.css",
     "./payer-theme.css": "./vscode-extension/media/payer-theme.css"
   },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "vscode-extension/media/payer-theme.css",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "node --test"
   },
+  "keywords": [
+    "markdown-it",
+    "markdown-it-plugin",
+    "containers",
+    "directives",
+    "custom-blocks",
+    "inline-directives",
+    "extensible-markdown",
+    "scholarly-markdown",
+    "sanskrit",
+    "callouts"
+  ],
   "author": "marcodem",
   "license": "MIT",
   "repository": {

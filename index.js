@@ -7,7 +7,36 @@ try {
   cachedCss = fs.readFileSync(path.join(__dirname, 'vscode-extension/media/payer-theme.css'), 'utf8');
 } catch (e) {}
 
-module.exports = function scholarlyPlugin(md, options = {}) {
+
+
+const DEFAULT_BLOCK_CONTAINERS = [
+  { name: 'grammar-box', className: 'grammar-box' },
+  { name: 'grammarbox', className: 'grammar-box' },
+  { name: 'grammar-box2', className: 'grammar-box2' },
+  { name: 'grammarbox2', className: 'grammar-box2' },
+  { name: 'media', className: 'media' },
+  { name: 'center', className: 'center' },
+  { name: 'metrik-schema', className: 'metrik-schema' },
+  { name: 'metrikschema', className: 'metrik-schema' },
+  { name: 'important', className: 'important' },
+  { name: 'deleteme-box', className: 'deleteme-box' },
+  { name: 'deletemebox', className: 'deleteme-box' },
+  { name: 'note-box', className: 'note-box' },
+  { name: 'notebox', className: 'note-box' },
+  { name: 'laut-table', className: 'laut-table' },
+  { name: 'lauttable', className: 'laut-table' },
+  { name: 'indent', className: 'indent' },
+  { name: 'compact', className: 'compact' },
+  { name: 'no-header', className: 'no-header' },
+  { name: 'noheader', className: 'no-header' }
+];
+
+const DEFAULT_INLINE_DIRECTIVES = [
+  { name: 'sig', className: 'signalrot', tag: 'strong' },
+  { name: 'mark', className: 'marker-yellow', tag: 'mark' }
+];
+
+function scholarlyPlugin(md, options = {}) {
   const injectStyles = options.injectStyles !== false;
 
   if (injectStyles && cachedCss) {
@@ -24,27 +53,7 @@ module.exports = function scholarlyPlugin(md, options = {}) {
   // 1. Custom Block Containers (dynamically configurable)
   const blockContainers = (options.blockContainers && options.blockContainers.length > 0) 
     ? options.blockContainers 
-    : [
-        { name: 'grammar-box', className: 'grammar-box' },
-        { name: 'grammarbox', className: 'grammar-box' },
-        { name: 'grammar-box2', className: 'grammar-box2' },
-        { name: 'grammarbox2', className: 'grammar-box2' },
-        { name: 'media', className: 'media' },
-        { name: 'center', className: 'center' },
-        { name: 'metrik-schema', className: 'metrik-schema' },
-        { name: 'metrikschema', className: 'metrik-schema' },
-        { name: 'important', className: 'important' },
-        { name: 'deleteme-box', className: 'deleteme-box' },
-        { name: 'deletemebox', className: 'deleteme-box' },
-        { name: 'note-box', className: 'note-box' },
-        { name: 'notebox', className: 'note-box' },
-        { name: 'laut-table', className: 'laut-table' },
-        { name: 'lauttable', className: 'laut-table' },
-        { name: 'indent', className: 'indent' },
-        { name: 'compact', className: 'compact' },
-        { name: 'no-header', className: 'no-header' },
-        { name: 'noheader', className: 'no-header' }
-      ];
+    : DEFAULT_BLOCK_CONTAINERS;
 
   blockContainers.forEach(containerOpt => {
     const box = containerOpt.name;
@@ -97,10 +106,7 @@ module.exports = function scholarlyPlugin(md, options = {}) {
   // 3. Dynamic Inline Directives (:sig[...], :mark[...], etc.) & Scholarly syntax (:br, :indent, ⟪Devanagari⟫)
   const inlineDirectives = (options.inlineDirectives && options.inlineDirectives.length > 0)
     ? options.inlineDirectives
-    : [
-        { name: 'sig', className: 'signalrot', tag: 'strong' },
-        { name: 'mark', className: 'marker-yellow', tag: 'mark' }
-      ];
+    : DEFAULT_INLINE_DIRECTIVES;
 
   const directiveMap = new Map();
   inlineDirectives.forEach(dir => {
@@ -214,4 +220,29 @@ module.exports = function scholarlyPlugin(md, options = {}) {
       token.children = newChildren;
     }
   });
-};
+}
+
+function getSyntaxHelp() {
+  return {
+    containers: DEFAULT_BLOCK_CONTAINERS.map(c => ({
+      syntax: `::: ${c.name} [Titel]`,
+      description: `Erstellt den Block-Container .${c.className}`
+    })),
+    inline: DEFAULT_INLINE_DIRECTIVES.map(d => ({
+      syntax: `:${d.name}[Text]`,
+      description: `Erzeugt <${d.tag || 'span'} class="${d.className}">Text</${d.tag || 'span'}>`
+    })).concat([
+      { syntax: '《Text》', description: 'Sanskrit Devanagari Auszeichnung' },
+      { syntax: '《Text ||》', description: 'Sanskrit Devanagari mit Doppeldanda (॥)' },
+      { syntax: ':br', description: 'Zeilenumbruch in Tabellenzellen' },
+      { syntax: ':indent', description: 'Einrückung in Tabellenzellen' }
+    ])
+  };
+}
+
+scholarlyPlugin.DEFAULT_BLOCK_CONTAINERS = DEFAULT_BLOCK_CONTAINERS;
+scholarlyPlugin.DEFAULT_INLINE_DIRECTIVES = DEFAULT_INLINE_DIRECTIVES;
+scholarlyPlugin.getSyntaxHelp = getSyntaxHelp;
+
+module.exports = scholarlyPlugin;
+
