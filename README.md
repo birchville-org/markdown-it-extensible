@@ -1,3 +1,4 @@
+Warning: Identity file /Users/marco/.ssh/id_rsa not accessible: No such file or directory.
 # markdown-it-extensible (v1.1.0)
 
 A highly extensible, zero-code block container and inline directive syntax engine for [`markdown-it`](https://github.com/markdown-it/markdown-it).
@@ -10,6 +11,8 @@ A highly extensible, zero-code block container and inline directive syntax engin
 
 - 📦 **Dynamic Block Containers (`::: name [Title]`)**: Add or customize custom callouts with optional title headers.
 - 🎨 **Dynamic Inline Directives (`:name[Content]`)**: Map custom inline markup to any CSS class or HTML tag (`<strong>`, `<mark>`, `<span>`, etc.).
+- 🚀 **File-Based Configuration**: Define custom syntax elements effortlessly via a `markdown-it-extensible.json` file—no JS required.
+- 🚀 **File-Based Configuration**: Define custom syntax elements effortlessly via a `markdown-it-extensible.json` file—no JS required.
 - 🚀 **Zero-Code CSS Fallback**: Use any `:class-name[Text]` in Markdown—it automatically renders `<span class="class-name">Text</span>` without needing JavaScript registration.
 - 📐 **Multi-Level Nesting & Case-Insensitive Matching**: Handles `::::` nesting and case-insensitive container names (`::: Grammar-Box`, `::: GRAMMAR-BOX`).
 - 📚 **Built-in Scholarly Syntax**: Native support for Sanskrit Devanagari brackets (`《धर्मः》`), intra-table line breaks (`:br`), and intra-table indents (`:indent`).
@@ -162,6 +165,30 @@ console.log(extensiblePlugin.DEFAULT_INLINE_DIRECTIVES);
 
 ```typescript
 import MarkdownIt from 'markdown-it';
+## Defining Custom Syntax (JSON or JS)
+
+You can define your own containers and inline directives in two ways:
+
+### Method 1: JSON File (Zero-JS)
+Simply create a `markdown-it-extensible.json` file in your project's root directory. The plugin will automatically detect and load it.
+
+```json
+{
+  "blockContainers": [
+    { "name": "custom-card", "className": "custom-card-wrapper" }
+  ],
+  "inlineDirectives": [
+    { "name": "warning", "className": "text-red-500", "tag": "strong" }
+  ]
+}
+```
+
+Now you can immediately use `::: custom-card [Title]` and `:warning[Text]` in your Markdown files.
+
+### Method 2: JavaScript Configuration
+If you prefer, you can pass options directly when initializing the plugin:
+
+```javascript
 import extensiblePlugin, { ScholarlyPluginOptions } from 'markdown-it-extensible';
 
 const options: ScholarlyPluginOptions = {

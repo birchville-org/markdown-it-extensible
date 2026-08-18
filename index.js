@@ -37,6 +37,17 @@ const DEFAULT_INLINE_DIRECTIVES = [
 ];
 
 function scholarlyPlugin(md, options = {}) {
+  let configFromFile = {};
+  try {
+    const configPath = path.resolve(process.cwd(), "markdown-it-extensible.json");
+    if (fs.existsSync(configPath)) {
+      configFromFile = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    }
+  } catch (e) {}
+
+  const mergedOptions = Object.assign({}, configFromFile, options);
+  options = mergedOptions; // Re-assign options to trick the rest of the function without heavy patching
+
   const injectStyles = options.injectStyles !== false;
 
   if (injectStyles && cachedCss) {

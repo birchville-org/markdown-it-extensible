@@ -117,7 +117,32 @@ var require_index = __commonJS({
       cachedCss = fs2.readFileSync(path.join(__dirname, "vscode-extension/media/payer-theme.css"), "utf8");
     } catch (e) {
     }
-    module2.exports = function scholarlyPlugin(md, options = {}) {
+    var DEFAULT_BLOCK_CONTAINERS = [
+      { name: "grammar-box", className: "grammar-box" },
+      { name: "grammarbox", className: "grammar-box" },
+      { name: "grammar-box2", className: "grammar-box2" },
+      { name: "grammarbox2", className: "grammar-box2" },
+      { name: "media", className: "media" },
+      { name: "center", className: "center" },
+      { name: "metrik-schema", className: "metrik-schema" },
+      { name: "metrikschema", className: "metrik-schema" },
+      { name: "important", className: "important" },
+      { name: "deleteme-box", className: "deleteme-box" },
+      { name: "deletemebox", className: "deleteme-box" },
+      { name: "note-box", className: "note-box" },
+      { name: "notebox", className: "note-box" },
+      { name: "laut-table", className: "laut-table" },
+      { name: "lauttable", className: "laut-table" },
+      { name: "indent", className: "indent" },
+      { name: "compact", className: "compact" },
+      { name: "no-header", className: "no-header" },
+      { name: "noheader", className: "no-header" }
+    ];
+    var DEFAULT_INLINE_DIRECTIVES = [
+      { name: "sig", className: "signalrot", tag: "strong" },
+      { name: "mark", className: "marker-yellow", tag: "mark" }
+    ];
+    function scholarlyPlugin(md, options = {}) {
       const injectStyles = options.injectStyles !== false;
       if (injectStyles && cachedCss) {
         md.core.ruler.push("extensible_styles_inject", (state) => {
@@ -132,34 +157,15 @@ ${cachedCss}
           }
         });
       }
-      const blockContainers = options.blockContainers && options.blockContainers.length > 0 ? options.blockContainers : [
-        { name: "grammar-box", className: "grammar-box" },
-        { name: "grammarbox", className: "grammar-box" },
-        { name: "grammar-box2", className: "grammar-box2" },
-        { name: "grammarbox2", className: "grammar-box2" },
-        { name: "media", className: "media" },
-        { name: "center", className: "center" },
-        { name: "metrik-schema", className: "metrik-schema" },
-        { name: "metrikschema", className: "metrik-schema" },
-        { name: "important", className: "important" },
-        { name: "deleteme-box", className: "deleteme-box" },
-        { name: "deletemebox", className: "deleteme-box" },
-        { name: "note-box", className: "note-box" },
-        { name: "notebox", className: "note-box" },
-        { name: "laut-table", className: "laut-table" },
-        { name: "lauttable", className: "laut-table" },
-        { name: "indent", className: "indent" },
-        { name: "compact", className: "compact" },
-        { name: "no-header", className: "no-header" },
-        { name: "noheader", className: "no-header" }
-      ];
+      const blockContainers = options.blockContainers && options.blockContainers.length > 0 ? options.blockContainers : DEFAULT_BLOCK_CONTAINERS;
       blockContainers.forEach((containerOpt) => {
         const box = containerOpt.name;
         const cssClass = containerOpt.className;
+        const containerRe = new RegExp(`^\\s*${box}(?:\\s*(.*))?$`, "i");
         md.use(container, box, {
-          validate: (params) => params.trim().match(new RegExp(`^${box}(?:\\s+(.*))?$`)),
+          validate: (params) => params.match(containerRe),
           render: (tokens, idx) => {
-            const m = tokens[idx].info.trim().match(new RegExp(`^${box}(?:\\s+(.*))?$`));
+            const m = tokens[idx].info.match(containerRe);
             if (tokens[idx].nesting === 1) {
               let titleHtml = "";
               if (m && m[1]) {
@@ -197,10 +203,7 @@ ${titleHtml}`;
         });
       } catch (e) {
       }
-      const inlineDirectives = options.inlineDirectives && options.inlineDirectives.length > 0 ? options.inlineDirectives : [
-        { name: "sig", className: "signalrot", tag: "strong" },
-        { name: "mark", className: "marker-yellow", tag: "mark" }
-      ];
+      const inlineDirectives = options.inlineDirectives && options.inlineDirectives.length > 0 ? options.inlineDirectives : DEFAULT_INLINE_DIRECTIVES;
       const directiveMap = /* @__PURE__ */ new Map();
       inlineDirectives.forEach((dir) => {
         directiveMap.set(dir.name, {
@@ -288,7 +291,28 @@ ${titleHtml}`;
           token.children = newChildren;
         }
       });
-    };
+    }
+    function getSyntaxHelp() {
+      return {
+        containers: DEFAULT_BLOCK_CONTAINERS.map((c) => ({
+          syntax: `::: ${c.name} [Titel]`,
+          description: `Erstellt den Block-Container .${c.className}`
+        })),
+        inline: DEFAULT_INLINE_DIRECTIVES.map((d) => ({
+          syntax: `:${d.name}[Text]`,
+          description: `Erzeugt <${d.tag || "span"} class="${d.className}">Text</${d.tag || "span"}>`
+        })).concat([
+          { syntax: "\u300AText\u300B", description: "Sanskrit Devanagari Auszeichnung" },
+          { syntax: "\u300AText ||\u300B", description: "Sanskrit Devanagari mit Doppeldanda (\u0965)" },
+          { syntax: ":br", description: "Zeilenumbruch in Tabellenzellen" },
+          { syntax: ":indent", description: "Einr\xFCckung in Tabellenzellen" }
+        ])
+      };
+    }
+    scholarlyPlugin.DEFAULT_BLOCK_CONTAINERS = DEFAULT_BLOCK_CONTAINERS;
+    scholarlyPlugin.DEFAULT_INLINE_DIRECTIVES = DEFAULT_INLINE_DIRECTIVES;
+    scholarlyPlugin.getSyntaxHelp = getSyntaxHelp;
+    module2.exports = scholarlyPlugin;
   }
 });
 
