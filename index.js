@@ -117,8 +117,8 @@ function scholarlyPlugin(md, options = {}) {
   });
 
   const getScholarlyRe = (inTable = false) => inTable
-    ? /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g
-    : /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\])/g;
+    ? /([⟪][^⟫⟩]+[⟫⟩](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g
+    : /([⟪][^⟫⟩]+[⟫⟩](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\])/g;
 
   md.core.ruler.after('linkify', 'scholarly_fixes', (state) => {
     let insideTable = false;
@@ -150,12 +150,12 @@ function scholarlyPlugin(md, options = {}) {
           parts.forEach(part => {
             if (!part) return;
 
-            // Sanskrit brackets: 《...》 or ⟪...⟫
-            if (part.match(/^[⟪《].*[⟫⟩》](?:\s*\|\|?)?$/)) {
-              let innerText = part.replace(/^[⟪《]|(?:[⟫⟩》](?:\s*\|\|?)?)$/g, '');
+            // Sanskrit brackets: ⟪...⟫
+            if (part.match(/^[⟪].*[⟫⟩](?:\s*\|\|?)?$/)) {
+              let innerText = part.replace(/^[⟪]|(?:[⟫⟩](?:\s*\|\|?)?)$/g, '');
               let dandaHtml = '';
 
-              const pipeMatchOutside = part.match(/[⟫⟩》](\s*)(\|\|?)$/);
+              const pipeMatchOutside = part.match(/[⟫⟩](\s*)(\|\|?)$/);
               if (pipeMatchOutside) {
                 const space = pipeMatchOutside[1];
                 const pipe = pipeMatchOutside[2];
