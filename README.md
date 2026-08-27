@@ -7,6 +7,17 @@ A highly extensible, zero-code block container and inline directive syntax engin
 
 ---
 
+## Motivation & Architecture
+
+While static site generators like VitePress offer built-in container support, creating a dedicated `markdown-it` plugin provides significant architectural advantages for complex projects:
+
+1. **Single Source of Truth (Reusability):** By extracting the rendering logic into a standalone plugin, it can be shared across multiple environments—whether it's the main VitePress build, a local standalone QA-Viewer, or automated Node.js test scripts.
+2. **Clean Configuration (Separation of Concerns):** Custom markdown blocks often require complex HTML generation and class assignments. Moving this out of `.vitepress/config.js` keeps the site configuration clean and maintainable.
+3. **Editor Integration:** A dedicated plugin makes it possible to seamlessly integrate custom syntax into IDEs (e.g., via the bundled VS Code extension) for live previews and syntax highlighting.
+4. **Domain Encapsulation:** It cleanly separates domain-specific formatting rules from the rendering engine, ensuring the content remains portable across different static site generators.
+
+---
+
 ## Key Features
 
 - 📦 **Dynamic Block Containers (`::: name [Title]`)**: Add or customize custom callouts with optional title headers.
@@ -238,6 +249,8 @@ import 'markdown-it-extensible/css';
 | `::: compact` | `<div class="compact custom-block">` |
 | `::: metrik-schema` | `<div class="metrik-schema custom-block">` |
 | `::: deleteme-box` | `<div class="deleteme-box custom-block">` |
+| `::: literatur-box` | `<div class="literatur-box custom-block">` |
+| `::: literatur` | `<div class="literatur-box custom-block">` |
 
 ### Inline Directives
 | Syntax | Rendered HTML |
@@ -258,8 +271,18 @@ import 'markdown-it-extensible/css';
 - **Zentauri Desktop Editor**
 - **Payer Web Application**
 
+### VitePress Compatibility
+If you are using `markdown-it-extensible` alongside **VitePress**, note that VitePress natively supports five standard block containers out of the box without requiring registration in this plugin:
+- `::: info` (Blue informational box)
+- `::: tip` (Green tip box)
+- `::: warning` (Yellow warning box)
+- `::: danger` (Red critical box)
+- `::: details` (Collapsible `<details>` block)
+
+You can freely mix these VitePress standard containers with your custom `markdown-it-extensible` syntax.
+
 ---
 
 ## License
 
-[MIT](./LICENSE) © marcodem
+[MIT](./LICENSE) © birchville-org

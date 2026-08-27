@@ -1,3 +1,4 @@
 node_modules/
 *.vsix
 
+FEATURE_TEST.html

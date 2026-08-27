@@ -1112,3 +1112,31 @@ select.control-btn,
   font-weight: 600;
   margin-bottom: 8px;
 }
+
+/* Literatur-Box (Wissenschaftliche Quellenangaben) */
+:where(.vp-doc, body) .custom-block.literatur-box {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  padding: 12px 16px;
+  background-color: var(--vp-c-bg-soft);
+  margin: 16px 0;
+  font-size: 0.9em;
+  position: relative;
+}
+
+:where(.vp-doc, body) .custom-block.literatur-box::before {
+  content: "📖";
+  margin-right: 8px;
+  font-size: 1.1em;
+}
+
+/* Gaga Box */
+.custom-block.gaga-box,
+:where(.vp-doc, body) .custom-block.gaga-box {
+  background-color: red !important;
+  color: yellow !important;
+  margin: 1.5rem 0;
+  padding: 1.25rem 1.25rem 1.25rem 2.5rem !important;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}

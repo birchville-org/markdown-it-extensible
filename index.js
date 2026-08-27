@@ -4,8 +4,10 @@ const container = require('markdown-it-container');
 
 let cachedCss = '';
 try {
-  cachedCss = fs.readFileSync(path.join(__dirname, 'vscode-extension/media/payer-theme.css'), 'utf8');
-} catch (e) {}
+  cachedCss = fs.readFileSync(path.join(__dirname, 'theme/payer-theme.css'), 'utf8');
+} catch (e) {
+  console.warn('markdown-it-extensible: Could not load theme/payer-theme.css', e.message);
+}
 
 
 
@@ -21,6 +23,8 @@ const DEFAULT_BLOCK_CONTAINERS = [
   { name: 'important', className: 'important' },
   { name: 'deleteme-box', className: 'deleteme-box' },
   { name: 'deletemebox', className: 'deleteme-box' },
+  { name: 'literatur-box', className: 'literatur-box' },
+  { name: 'literatur', className: 'literatur-box' },
   { name: 'note-box', className: 'note-box' },
   { name: 'notebox', className: 'note-box' },
   { name: 'laut-table', className: 'laut-table' },
@@ -28,7 +32,8 @@ const DEFAULT_BLOCK_CONTAINERS = [
   { name: 'indent', className: 'indent' },
   { name: 'compact', className: 'compact' },
   { name: 'no-header', className: 'no-header' },
-  { name: 'noheader', className: 'no-header' }
+  { name: 'noheader', className: 'no-header' },
+  { name: 'gaga-box', className: 'gaga-box' }
 ];
 
 const DEFAULT_INLINE_DIRECTIVES = [
@@ -43,10 +48,12 @@ function scholarlyPlugin(md, options = {}) {
     if (fs.existsSync(configPath)) {
       configFromFile = JSON.parse(fs.readFileSync(configPath, "utf8"));
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('markdown-it-extensible: Invalid config file (markdown-it-extensible.json)', e.message);
+  }
 
   const mergedOptions = Object.assign({}, configFromFile, options);
-  options = mergedOptions; // Re-assign options to trick the rest of the function without heavy patching
+  options = mergedOptions; // Merge external configuration with provided options
 
   const injectStyles = options.injectStyles !== false;
 
@@ -127,9 +134,9 @@ function scholarlyPlugin(md, options = {}) {
     });
   });
 
-  const getScholarlyRe = (inTable = false) => inTable
-    ? /([⟪][^⟫⟩]+[⟫⟩](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/g
-    : /([⟪][^⟫⟩]+[⟫⟩](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\])/g;
+  const scholarlyReTable = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\]|(?<!:):br|(?<!:):indent)/;
+  const scholarlyReNormal = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[.*?\])/;
+  const getScholarlyRe = (inTable = false) => inTable ? scholarlyReTable : scholarlyReNormal;
 
   md.core.ruler.after('linkify', 'scholarly_fixes', (state) => {
     let insideTable = false;
@@ -161,12 +168,12 @@ function scholarlyPlugin(md, options = {}) {
           parts.forEach(part => {
             if (!part) return;
 
-            // Sanskrit brackets: ⟪...⟫
-            if (part.match(/^[⟪].*[⟫⟩](?:\s*\|\|?)?$/)) {
-              let innerText = part.replace(/^[⟪]|(?:[⟫⟩](?:\s*\|\|?)?)$/g, '');
+            // Sanskrit brackets: 《...》 or ⟪...⟫
+            if (part.match(/^[⟪《].*[⟫⟩》](?:\s*\|\|?)?$/)) {
+              let innerText = part.replace(/^[⟪《]|(?:[⟫⟩》](?:\s*\|\|?)?)$/g, '');
               let dandaHtml = '';
 
-              const pipeMatchOutside = part.match(/[⟫⟩](\s*)(\|\|?)$/);
+              const pipeMatchOutside = part.match(/[⟫⟩》](\s*)(\|\|?)$/);
               if (pipeMatchOutside) {
                 const space = pipeMatchOutside[1];
                 const pipe = pipeMatchOutside[2];

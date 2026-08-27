@@ -80,7 +80,16 @@ Dharmo rakṣati rakṣitaḥ
 
 ---
 
-## 4. Verschachtelte Container (Mehrere Doppelpunkte)
+## 4. Neues Container Element (Gaga-Box)
+
+::: gaga-box [Optionaler Titel]
+Dies ist das neue Container Element mit rotem Hintergrund und gelber Schrift.
+Die Box ist linksseitig eingerückt.
+:::
+
+---
+
+## 5. Verschachtelte Container (Mehrere Doppelpunkte)
 
 :::: grammar-box [Verschachtelte Struktur]
 Hier ist der äußere Grammatik-Block mit 4 Doppelpunkten (`:::: grammar-box`).
