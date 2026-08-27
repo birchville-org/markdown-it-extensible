@@ -1,6 +1,6 @@
 {
   "name": "markdown-it-extensible",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A highly extensible, zero-code block container and inline directive engine for markdown-it",
   "main": "index.js",
   "types": "index.d.ts",
