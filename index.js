@@ -69,14 +69,14 @@ function scholarlyPlugin(md, options = {}) {
   }
 
   // 1. Custom Block Containers (dynamically configurable)
-  const blockContainers = (options.blockContainers && options.blockContainers.length > 0) 
+  const blockContainers = ((options.blockContainers && options.blockContainers.length > 0) 
     ? options.blockContainers 
-    : DEFAULT_BLOCK_CONTAINERS;
+    : DEFAULT_BLOCK_CONTAINERS).slice().sort((a, b) => b.name.length - a.name.length);
 
   blockContainers.forEach(containerOpt => {
     const box = containerOpt.name;
     const cssClass = containerOpt.className;
-    const containerRe = new RegExp(`^\\s*${box}(?:\\s*(.*))?$`, 'i');
+    const containerRe = new RegExp(`^\\s*${box}(?:\\s+(.*)|(?=\\[)(.*))?$`, "i");
 
     md.use(container, box, {
       validate: (params) => params.match(containerRe),
@@ -84,8 +84,9 @@ function scholarlyPlugin(md, options = {}) {
         const m = tokens[idx].info.match(containerRe);
         if (tokens[idx].nesting === 1) {
           let titleHtml = '';
-          if (m && m[1]) {
-            const titleMatch = m[1].match(/^\[([^\]]+)\]/);
+          const rawTitle = m ? (m[1] || m[2]) : '';
+          if (rawTitle) {
+            const titleMatch = rawTitle.match(/^\[([^\]]+)\]/);
             if (titleMatch) {
               titleHtml = `<div class="md-box__title">${titleMatch[1]}</div>\n`;
             }

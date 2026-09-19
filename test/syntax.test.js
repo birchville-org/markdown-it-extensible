@@ -89,6 +89,13 @@ test('1. Feature Tests: Standard Syntax Elements', async (t) => {
     const noSpaceTitle = md.render('::::grammar-box[Titel]\nContent\n::::');
     assert.match(noSpaceTitle, /<div class="grammar-box custom-block">\n<div class="md-box__title">Titel<\/div>/);
   });
+
+  await t.test('1.12 Grammar-box2 without grammar-box collision', () => {
+    const box2 = md.render('::: grammar-box2\nSchema\n:::');
+    assert.match(box2, /<div class="grammar-box2 custom-block">/);
+    const box1 = md.render('::: grammar-box\nRule\n:::');
+    assert.match(box1, /<div class="grammar-box custom-block">/);
+  });
 });
 
 test('2. Dynamic Syntax Modification (Addition & Removal)', async (t) => {

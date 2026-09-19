@@ -4,6 +4,13 @@ All notable changes to `markdown-it-extensible` will be documented in this file.
 
 ---
 
+## [1.2.2] - 2026-09-19
+
+### Fixed
+- **Container Prefix Collision:** Sorted block containers longest-first and fixed container validation regex to prevent prefix containers (e.g. `grammar-box`) from falsely matching and shadowing more specific containers (e.g. `grammar-box2`).
+
+---
+
 ## [1.1.0] - 2026-07-25
 
 ### Added
