@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const container = require('markdown-it-container');
+const { adjustContainerNesting } = require('./nesting');
 
 let cachedCss = '';
 try {
@@ -73,6 +74,46 @@ function scholarlyPlugin(md, options = {}) {
     ? options.blockContainers 
     : DEFAULT_BLOCK_CONTAINERS).slice().sort((a, b) => b.name.length - a.name.length);
 
+  // 1b. Container Nesting Normalization (autoNesting core rule)
+  if (options.autoNesting !== false) {
+    const nestingOpts = typeof options.autoNesting === 'object' && options.autoNesting !== null
+      ? options.autoNesting
+      : {};
+
+    const STANDARD_CONTAINERS = ['tip', 'warning', 'danger', 'details', 'info', 'note'];
+    let containerNames;
+    if (nestingOpts.names !== undefined) {
+      containerNames = nestingOpts.names
+        ? new Set(Array.from(nestingOpts.names, (n) => String(n).toLowerCase()))
+        : null;
+    } else {
+      containerNames = new Set([
+        ...blockContainers.map((c) => c.name.toLowerCase()),
+        ...STANDARD_CONTAINERS
+      ]);
+    }
+
+    const nestingRule = (state) => {
+      const res = adjustContainerNesting(state.src, {
+        names: containerNames,
+        closeUnclosed: nestingOpts.closeUnclosed || false
+      });
+      if (res.didRepair) {
+        state.src = res.repaired;
+      }
+    };
+
+    try {
+      md.core.ruler.before('normalize', 'container_nesting', nestingRule);
+    } catch (e) {
+      try {
+        md.core.ruler.before('block', 'container_nesting', nestingRule);
+      } catch (e2) {
+        md.core.ruler.push('container_nesting', nestingRule);
+      }
+    }
+  }
+
   blockContainers.forEach(containerOpt => {
     const box = containerOpt.name;
     const cssClass = containerOpt.className;
@@ -87,7 +128,7 @@ function scholarlyPlugin(md, options = {}) {
           const rawTitle = m ? (m[1] || m[2]) : '';
           if (rawTitle) {
             const titleMatch = rawTitle.match(/^\[([^\]]+)\]/);
-            if (titleMatch) {
+            if (titleMatch && titleMatch[1].trim()) {
               titleHtml = `<div class="md-box__title">${titleMatch[1]}</div>\n`;
             }
           }
@@ -262,6 +303,7 @@ function getSyntaxHelp() {
 scholarlyPlugin.DEFAULT_BLOCK_CONTAINERS = DEFAULT_BLOCK_CONTAINERS;
 scholarlyPlugin.DEFAULT_INLINE_DIRECTIVES = DEFAULT_INLINE_DIRECTIVES;
 scholarlyPlugin.getSyntaxHelp = getSyntaxHelp;
+scholarlyPlugin.adjustContainerNesting = adjustContainerNesting;
 
 module.exports = scholarlyPlugin;
 
