@@ -1,4 +1,6 @@
-# markdown-it-extensible (v1.3.0)
+# markdown-it-extensible
+
+> 📖 **Online-Dokumentation & Live-Guide:** [https://birchville-org.github.io/markdown-it-extensible/](https://birchville-org.github.io/markdown-it-extensible/)
 
 A highly extensible, zero-code block container and inline directive syntax engine for [`markdown-it`](https://github.com/markdown-it/markdown-it).
 
