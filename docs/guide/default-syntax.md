@@ -51,3 +51,12 @@ In Markdown sind Zeilenumbrüche innerhalb von Tabellenzellen oftmals problemati
 Vordefinierte Hervorhebungen:
 - `:sig[Text]` -> `<strong class="signalrot">Text</strong>`
 - `:mark[Text]` -> `<mark class="marker-yellow">Text</mark>`
+
+---
+
+## Styling der Standard-Elemente
+
+Alle hier aufgeführten Standard-Container und Inline-Elemente besitzen vordefinierte CSS-Klassen (z. B. `.grammar-box`, `.note-box`, `.signalrot`, `.marker-yellow`, `.sanskrit-dev`). 
+
+Diese Klassen sind im mitgelieferten Stylesheet `markdown-it-extensible/css` (`theme/payer-theme.css`) bereits vollständig für Light- und Dark-Mode gestaltet. Sie können direkt per `import 'markdown-it-extensible/css'` geladen oder bei Bedarf in Ihrer eigenen CSS-Datei überschrieben werden.
+

@@ -6,3 +6,6 @@ FEATURE_TEST.html
 # VitePress build output & cache
 docs/.vitepress/dist
 docs/.vitepress/cache
+
+*.code-workspace
+

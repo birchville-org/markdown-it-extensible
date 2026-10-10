@@ -36,11 +36,35 @@ import extensiblePlugin from 'markdown-it-extensible'
 export default defineConfig({
   markdown: {
     config: (md) => {
-      // Optional: Standard-CSS deaktivieren, wenn Sie eigene Styles injizieren
+      // Optional: Standard-CSS-Injektion deaktivieren, wenn Sie eigene Styles injizieren
       md.use(extensiblePlugin, { injectStyles: false })
     }
   }
 })
 ```
 
-Das war's! Die vorkonfigurierten Standardelemente stehen nun zur Verfügung. Im nächsten Kapitel erfahren Sie, wie Sie eigene Elemente hinzufügen.
+## CSS einbinden
+
+Das Plugin erzeugt semantische HTML-Elemente mit CSS-Klassen. Für das visuelle Design stehen Ihnen zwei Wege offen:
+
+### 1. Integriertes Standard-Theme nutzen
+Das Paket liefert ein vollständiges Stylesheet (`payer-theme.css`) für alle Standard-Elemente (wie `grammar-box`, `note-box`, `:sig[...]`, `:mark[...]`, Sanskrit-Auszeichnung etc.) mit:
+
+```javascript
+// In VitePress (.vitepress/theme/index.mjs oder index.js)
+import DefaultTheme from 'vitepress/theme'
+import 'markdown-it-extensible/css'
+
+export default { extends: DefaultTheme }
+```
+
+In regulären Web-Apps können Sie die Datei direkt per CSS importieren:
+```css
+@import "markdown-it-extensible/css";
+```
+
+### 2. Eigene Klassen gestalten
+Wenn Sie eigene Container- oder Directive-Namen vergeben (oder die Standardklassen überschreiben möchten), legen Sie diese in Ihrer eigenen CSS-Datei ab (z. B. `.vitepress/theme/style.css`).
+
+Konkrete Vorlagen und Best Practices finden Sie im Kapitel [Anwendung & Anpassung neuer Syntax-Elemente](/guide/custom-syntax#css-gestaltung--ablageort).
+

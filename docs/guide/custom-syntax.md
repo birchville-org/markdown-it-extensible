@@ -87,3 +87,123 @@ Wird automatisch zu:
 ```
 
 Dies bedeutet, dass reine Design-Teams eigene Klassen ins CSS aufnehmen können und diese sofort als Inline-Elemente im Markdown nutzen können, ohne die Entwickler zu kontaktieren.
+
+---
+
+## CSS-Gestaltung & Ablageort
+
+`markdown-it-extensible` erzeugt semantisches HTML mit den von Ihnen deklarierten Klassen. Die visuelle Gestaltung (Farben, Rahmen, Abstände) definieren Sie in Ihrem CSS.
+
+### 1. Wo wird das CSS hingeschrieben?
+
+Je nach Umgebung wird die CSS-Datei an folgender Stelle abgelegt bzw. eingebunden:
+
+#### In VitePress
+In einem VitePress-Projekt werden benutzerdefinierte Styles typischerweise in `.vitepress/theme/style.css` hinterlegt und in der Theme-Einstiegsdatei geladen:
+
+```javascript
+// .vitepress/theme/index.mjs (oder index.js)
+import DefaultTheme from 'vitepress/theme'
+import 'markdown-it-extensible/css' // Optional: Standard-Styles des Plugins
+import './style.css'                // Ihre eigenen Klassen
+
+export default {
+  extends: DefaultTheme
+}
+```
+
+#### In Web-Applikationen (Vite, Webpack, Next.js, HTML)
+- **Moderne Bundler (Vite, Next.js, React/Vue):** In der globalen CSS-Datei Ihres Projekts (z. B. `src/styles.css` oder `app/globals.css`), die in der Haupt-App importiert wird.
+- **Klassische HTML-Seiten:** In einer separaten CSS-Datei, die im `<head>` verlinkt ist:
+  ```html
+  <link rel="stylesheet" href="/css/custom-markdown.css">
+  ```
+
+#### In VS Code (Markdown-Vorschau)
+Wenn Sie die VS Code Erweiterung oder die native Markdown-Vorschau nutzen und Ihre Klassen dort visuell testen möchten, können Sie die CSS-Datei in Ihrer Workspace-Konfiguration `.vscode/settings.json` angeben:
+
+```json
+{
+  "markdown.styles": [
+    "./theme/custom-styles.css"
+  ]
+}
+```
+
+---
+
+### 2. Wie werden die Klassen gestaltet? (Praxisbeispiele)
+
+#### Block-Container gestalten
+Jeder Block-Container generiert die CSS-Klasse `.custom-block` plus Ihre konfigurierte `className`. Wenn ein Titel übergeben wurde (`::: name [Titel]`), erhält dieser die Klasse `.md-box__title`.
+
+```css
+/* Basis-Container (Light Mode) */
+.custom-card-wrapper {
+  background-color: #f8fafc;
+  border-left: 4px solid #3b82f6; /* Blauer Akzentrand */
+  border-radius: 0 8px 8px 0;
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Titel-Zeile */
+.custom-card-wrapper .md-box__title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #1e40af;
+  margin-bottom: 0.5rem;
+}
+
+/* Fließtext innerhalb der Box */
+.custom-card-wrapper p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Dark Mode Unterstützung */
+.dark .custom-card-wrapper {
+  background-color: #1e293b;
+  border-left-color: #60a5fa;
+  color: #f1f5f9;
+}
+
+.dark .custom-card-wrapper .md-box__title {
+  color: #93c5fd;
+}
+```
+
+#### Inline-Direktiven gestalten
+Inline-Direktiven werden direkt auf das gewünschte HTML-Element angewendet (`<span>`, `<strong>`, `<mark>` etc.):
+
+```css
+/* 1. Pill-Badge (:badge[Neu]) */
+.pill-badge {
+  display: inline-block;
+  background-color: #e0e7ff;
+  color: #3730a3;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  vertical-align: middle;
+  line-height: 1.2;
+}
+
+/* 2. Warning-Hervorhebung (:warning[Achtung]) */
+.text-red-500 {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+/* 3. Beliebige Fallback-Klasse (:info-chip[Hinweis]) */
+.info-chip {
+  background-color: #e2e8f0;
+  color: #1e293b;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+```
+
