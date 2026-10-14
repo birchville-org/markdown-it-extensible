@@ -34,6 +34,18 @@ md.use(extensiblePlugin, {
 });
 ```
 
+### Controlling the Config File (`configFile`)
+
+By default, the plugin looks for `markdown-it-extensible.json` in the current working directory. You can configure or disable this behavior:
+
+```javascript
+// Completely disable automatic filesystem lookup (e.g., in VS Code extensions or serverless runtimes):
+md.use(extensiblePlugin, { configFile: false });
+
+// Specify a custom path to your configuration file:
+md.use(extensiblePlugin, { configFile: './config/extensible-markdown.json' });
+```
+
 ---
 
 ## Using Custom Block Containers
@@ -58,6 +70,7 @@ This renders to:
 **Important Notes for Block Containers:**
 - Trigger matching (`::: name`) is **case-insensitive** by default (`::: CUSTOM-CARD` also works).
 - Empty brackets (`::: custom-card []`) suppress title generation (no `.md-box__title` element).
+- Titles in brackets are sanitized automatically against XSS (`md.utils.escapeHtml()`), and class names are sanitized against attribute breakouts.
 
 ---
 

@@ -34,6 +34,18 @@ md.use(extensiblePlugin, {
 });
 ```
 
+### Konfigurationsdatei steuern (`configFile`)
+
+Standardmässig sucht das Plugin im Arbeitsverzeichnis nach `markdown-it-extensible.json`. Dieser Mechanismus lässt sich konfigurieren oder deaktivieren:
+
+```javascript
+// Automatische Dateisuche komplett abschalten (z. B. in VS Code Extensions oder Serverless-Runtimes):
+md.use(extensiblePlugin, { configFile: false });
+
+// Benutzerdefinierten Pfad zur Konfigurationsdatei angeben:
+md.use(extensiblePlugin, { configFile: './config/extensible-markdown.json' });
+```
+
 ---
 
 ## Eigene Block-Container anwenden
@@ -58,6 +70,7 @@ Dies wird gerendert als:
 **Wichtige Hinweise für Block-Container:**
 - Die Zuweisung des Triggers (`::: name`) ist standardmässig **Case-Insensitive** (`::: CUSTOM-CARD` funktioniert ebenfalls).
 - Leere Titel (`::: custom-card []`) unterdrücken das Generieren des `.md-box__title` Elements.
+- Titel werden automatisch gegen XSS bereinigt (`md.utils.escapeHtml()`), Klassennamen werden gegen Attribut-Breakouts geschützt.
 
 ---
 
