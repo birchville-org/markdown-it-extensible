@@ -171,6 +171,30 @@ test('4. Standalone Container Nesting Normalization (nesting.js)', async (t) => 
     assert.ok(res.repaired.includes('\r\n'));
     assert.strictEqual(res.repaired, ':::: note-box\r\n::: grammar-box\r\nText\r\n:::\r\n::::');
   });
+
+  await t.test('4.9 Unknown container inside known container does not prematurely pop outer container', () => {
+    const input = [
+      '::: note-box',
+      '::: unknown-opener',
+      'inner',
+      ':::',
+      'after',
+      ':::'
+    ].join('\n');
+
+    const expected = [
+      ':::: note-box',
+      '::: unknown-opener',
+      'inner',
+      ':::',
+      'after',
+      '::::'
+    ].join('\n');
+
+    const res = adjustContainerNesting(input, { names: ['note-box'] });
+    assert.strictEqual(res.didRepair, true);
+    assert.strictEqual(res.repaired, expected);
+  });
 });
 
 test('5. Integrated autoNesting Core Rule in markdown-it-extensible', async (t) => {
@@ -262,5 +286,25 @@ test('5. Integrated autoNesting Core Rule in markdown-it-extensible', async (t) 
 
   await t.test('5.5 adjustContainerNesting is exported on plugin', () => {
     assert.strictEqual(typeof extensiblePlugin.adjustContainerNesting, 'function');
+  });
+
+  await t.test('5.6 Unknown opener does not close known container during md.render', () => {
+    const md = new MarkdownIt({ html: true }).use(extensiblePlugin, { injectStyles: false });
+    const input = [
+      '::: note-box',
+      '::: unknown-box',
+      'inner',
+      ':::',
+      'after',
+      ':::'
+    ].join('\n');
+
+    const html = md.render(input);
+    assert.match(html, /<div class="note-box custom-block">/);
+    assert.match(html, /after/);
+    const noteBoxIndex = html.indexOf('note-box custom-block');
+    const afterIndex = html.indexOf('after');
+    const closeIndex = html.lastIndexOf('</div>');
+    assert.ok(noteBoxIndex < afterIndex && afterIndex < closeIndex);
   });
 });

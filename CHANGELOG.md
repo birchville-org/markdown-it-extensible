@@ -4,6 +4,23 @@ All notable changes to `markdown-it-extensible` will be documented in this file.
 
 ---
 
+## [1.3.2] - 2026-10-14
+
+### Sicherheit & Sandbox
+- **XSS-Schutz für Container-Titel:** Container-Titel in eckigen Klammern (`::: container [Titel]`) werden nun konsequent via `md.utils.escapeHtml()` bereinigt, um HTML- und Skript-Injektionen vollständig zu verhindern.
+- **Attribut- & Tag-Injection-Schutz:** CSS-Klassennamen für Block-Container und Inline-Direktiven werden sanitisiert (`[^a-zA-Z0-9_\-\s]`), um Attribut-Breakouts (z. B. Event-Handler `onmouseover=...`) auszuschließen. Inline-Tags werden gegen eine Whitelist erlaubter HTML5-Elemente (`ALLOWED_INLINE_TAGS`) validiert.
+
+### Datenintegrität & Kernfunktionen
+- **Nesting-Stack bei unbekannten Containern geschützt (`nesting.js`):** Unbekannte Container-Opener (`::: unknown`) werden im LIFO-Stack nun als opake Blöcke erfasst. Dadurch schließt das zugehörige `:::` nicht mehr versehentlich den übergeordneten bekannten Container.
+- **Prävention von Falsch-Positiven bei Inline-Direktiven:** Lookbehind `(?<![\w:-])` und obligatorischer Buchstaben-Präfix (`:[a-zA-Z]`) verhindern Fehlschläge bei Zeitangaben (`10:30[note]`), Variablenzugriffen (`a:b[0]`) oder URLs mit Ports.
+- **Robuste Optionsvalidierung:** Fehlerhafte Konfigurationseinträge ohne Namen bringen das Plugin nicht mehr zum Absturz, sondern werden gefiltert und mit sicheren Fallbacks versehen.
+
+### Performance & Plattform-Stabilität
+- **Lazy CSS-Loading & Konfigurations-Flag:** `cachedCss` wird nur bei tatsächlichem Bedarf geladen. Das synchrone Lesen von `markdown-it-extensible.json` im `process.cwd()` kann nun via `options.configFile: false` explizit unterbunden werden (z. B. in VS Code Webviews).
+- **TypeScript-Definitionen:** `configFile?: boolean | string` in `ScholarlyPluginOptions` in `index.d.ts` aufgenommen.
+
+---
+
 ## [1.3.1] - 2026-10-10
 
 ### Sicherheit & Sandbox

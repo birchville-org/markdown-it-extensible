@@ -136,9 +136,13 @@ test('2. Dynamic Syntax Modification (Addition & Removal)', async (t) => {
 test('3. Edge Cases, Safety & API Metadata', async (t) => {
   const md = new MarkdownIt({ html: true }).use(extensiblePlugin, { injectStyles: false });
 
-  await t.test('3.1 Title with Special Characters', () => {
+  await t.test('3.1 Title with Special Characters and XSS Sanitization', () => {
     const html = md.render('::: grammar-box [<Titel & Test>]\nInhalt\n:::');
-    assert.match(html, /<div class="md-box__title"><Titel & Test><\/div>/);
+    assert.match(html, /<div class="md-box__title">&lt;Titel &amp; Test&gt;<\/div>/);
+
+    const xssHtml = md.render('::: note-box [<img src=x onerror=alert(1)>]\ntext\n:::');
+    assert.doesNotMatch(xssHtml, /<img /);
+    assert.match(xssHtml, /&lt;img src=x onerror=alert\(1\)&gt;/);
   });
 
   await t.test('3.2 Deeply Nested Containers (4+ Colons)', () => {
@@ -155,5 +159,57 @@ test('3. Edge Cases, Safety & API Metadata', async (t) => {
     assert.ok(Array.isArray(help.inline));
     assert.ok(help.containers.length > 0);
     assert.ok(help.inline.length > 0);
+  });
+
+  await t.test('3.4 Robustness with Invalid Configuration Entries', () => {
+    assert.doesNotThrow(() => {
+      const customMd = new MarkdownIt({ html: true }).use(extensiblePlugin, {
+        injectStyles: false,
+        blockContainers: [
+          null,
+          { className: 'missing-name' },
+          { name: '' },
+          { name: 'valid-box' }
+        ],
+        inlineDirectives: [
+          null,
+          { tag: 'strong' },
+          { name: '' },
+          { name: 'valid-dir' }
+        ]
+      });
+      const res = customMd.render('::: valid-box\nText\n:::\n\n:valid-dir[Text]');
+      assert.match(res, /<div class="valid-box custom-block">/);
+      assert.match(res, /<span class="valid-dir">Text<\/span>/);
+    });
+  });
+
+  await t.test('3.5 Injection Prevention for Class Names and HTML Tags', () => {
+    const customMd = new MarkdownIt({ html: true }).use(extensiblePlugin, {
+      injectStyles: false,
+      blockContainers: [
+        { name: 'unsafe-box', className: 'box" onmouseover="alert(1)' }
+      ],
+      inlineDirectives: [
+        { name: 'unsafe-dir', className: 'dir" onfocus="alert(1)', tag: 'script' }
+      ]
+    });
+
+    const rendered = customMd.render('::: unsafe-box\nContent\n:::\n\n:unsafe-dir[Content]');
+    // Attribute breakout prevented via class name sanitization and tag whitelisting
+    assert.doesNotMatch(rendered, /\s+onmouseover=/);
+    assert.doesNotMatch(rendered, /\s+onfocus=/);
+    assert.doesNotMatch(rendered, /<script/);
+    assert.match(rendered, /class="box onmouseoveralert1 custom-block"/);
+    // Disallowed tag falls back to 'span' with sanitized className
+    assert.match(rendered, /<span class="dir onfocusalert1">Content<\/span>/);
+  });
+
+  await t.test('3.6 Prevention of False-Positive Matches on Time and Code Patterns', () => {
+    const text = 'Uhrzeit 10:30[note] und Variable a:b[0] sowie https://example.com:8080[foo]';
+    const html = md.render(text);
+    assert.doesNotMatch(html, /<span class="30">/);
+    assert.doesNotMatch(html, /<span class="b">/);
+    assert.doesNotMatch(html, /<span class="8080">/);
   });
 });

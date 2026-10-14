@@ -3,14 +3,29 @@ const path = require('path');
 const container = require('markdown-it-container');
 const { adjustContainerNesting } = require('./nesting');
 
-let cachedCss = '';
-try {
-  cachedCss = fs.readFileSync(path.join(__dirname, 'theme/payer-theme.css'), 'utf8');
-} catch (e) {
-  console.warn('markdown-it-extensible: Could not load theme/payer-theme.css', e.message);
+let cachedCss = null;
+function getCachedCss(warnIfMissing = false) {
+  if (cachedCss !== null) return cachedCss;
+  try {
+    cachedCss = fs.readFileSync(path.join(__dirname, 'theme/payer-theme.css'), 'utf8');
+  } catch (e) {
+    cachedCss = '';
+    if (warnIfMissing) {
+      console.warn('markdown-it-extensible: Could not load theme/payer-theme.css', e.message);
+    }
+  }
+  return cachedCss;
 }
 
+const ALLOWED_INLINE_TAGS = new Set([
+  'span', 'strong', 'mark', 'em', 'b', 'i', 'u', 'code', 'small', 'sub', 'sup',
+  'abbr', 'cite', 'kbd', 's', 'del', 'ins', 'time', 'var'
+]);
 
+function sanitizeClassName(cls) {
+  if (typeof cls !== 'string') return '';
+  return cls.replace(/[^a-zA-Z0-9_\-\s]/g, '').trim();
+}
 
 const DEFAULT_BLOCK_CONTAINERS = [
   { name: 'grammar-box', className: 'grammar-box' },
@@ -44,35 +59,52 @@ const DEFAULT_INLINE_DIRECTIVES = [
 
 function scholarlyPlugin(md, options = {}) {
   let configFromFile = {};
-  try {
-    const configPath = path.resolve(process.cwd(), "markdown-it-extensible.json");
-    if (fs.existsSync(configPath)) {
-      configFromFile = JSON.parse(fs.readFileSync(configPath, "utf8"));
+  if (options.configFile !== false) {
+    try {
+      const configPath = typeof options.configFile === 'string'
+        ? path.resolve(options.configFile)
+        : path.resolve(process.cwd(), "markdown-it-extensible.json");
+      if (fs.existsSync(configPath)) {
+        configFromFile = JSON.parse(fs.readFileSync(configPath, "utf8"));
+      }
+    } catch (e) {
+      console.warn('markdown-it-extensible: Invalid config file (markdown-it-extensible.json)', e.message);
     }
-  } catch (e) {
-    console.warn('markdown-it-extensible: Invalid config file (markdown-it-extensible.json)', e.message);
   }
 
   const mergedOptions = Object.assign({}, configFromFile, options);
   options = mergedOptions; // Merge external configuration with provided options
 
   const injectStyles = options.injectStyles !== false;
+  const css = injectStyles ? getCachedCss(options.injectStyles === true) : '';
 
-  if (injectStyles && cachedCss) {
+  if (injectStyles && css) {
     md.core.ruler.push('extensible_styles_inject', (state) => {
       if (state.tokens.length > 0 && !state.env.__extensibleStylesInjected) {
         state.env.__extensibleStylesInjected = true;
         const styleToken = new state.Token('html_block', '', 0);
-        styleToken.content = `<style>\n${cachedCss}\n</style>\n`;
+        styleToken.content = `<style>\n${css}\n</style>\n`;
         state.tokens.unshift(styleToken);
       }
     });
   }
 
-  // 1. Custom Block Containers (dynamically configurable)
-  const blockContainers = ((options.blockContainers && options.blockContainers.length > 0) 
-    ? options.blockContainers 
-    : DEFAULT_BLOCK_CONTAINERS).slice().sort((a, b) => b.name.length - a.name.length);
+  // 1. Custom Block Containers (dynamically configurable & validated)
+  const rawBlockContainers = (options.blockContainers && Array.isArray(options.blockContainers) && options.blockContainers.length > 0)
+    ? options.blockContainers
+    : DEFAULT_BLOCK_CONTAINERS;
+
+  const blockContainers = rawBlockContainers
+    .filter(c => c && typeof c.name === 'string' && c.name.trim().length > 0)
+    .map(c => {
+      const name = c.name.trim();
+      const rawClass = typeof c.className === 'string' && c.className.trim() ? c.className.trim() : name;
+      return {
+        name,
+        className: sanitizeClassName(rawClass) || sanitizeClassName(name) || 'custom-box'
+      };
+    })
+    .sort((a, b) => b.name.length - a.name.length);
 
   // 1b. Container Nesting Normalization (autoNesting core rule)
   if (options.autoNesting !== false) {
@@ -117,7 +149,7 @@ function scholarlyPlugin(md, options = {}) {
   blockContainers.forEach(containerOpt => {
     const box = containerOpt.name;
     const escapedBox = box.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const cssClass = containerOpt.className;
+    const cssClass = sanitizeClassName(containerOpt.className) || 'custom-box';
     const containerRe = new RegExp(`^\\s*${escapedBox}(?:\\s+(.*)|(?=\\[)(.*))?$`, "i");
 
     md.use(container, box, {
@@ -130,7 +162,7 @@ function scholarlyPlugin(md, options = {}) {
           if (rawTitle) {
             const titleMatch = rawTitle.match(/^\[([^\]]+)\]/);
             if (titleMatch && titleMatch[1].trim()) {
-              titleHtml = `<div class="md-box__title">${titleMatch[1]}</div>\n`;
+              titleHtml = `<div class="md-box__title">${md.utils.escapeHtml(titleMatch[1].trim())}</div>\n`;
             }
           }
           return `<div class="${cssClass} custom-block">\n${titleHtml}`;
@@ -165,20 +197,34 @@ function scholarlyPlugin(md, options = {}) {
   }
 
   // 3. Dynamic Inline Directives (:sig[...], :mark[...], etc.) & Scholarly syntax (:br, :indent, ⟪Devanagari⟫)
-  const inlineDirectives = (options.inlineDirectives && options.inlineDirectives.length > 0)
+  const rawInlineDirectives = (options.inlineDirectives && Array.isArray(options.inlineDirectives) && options.inlineDirectives.length > 0)
     ? options.inlineDirectives
     : DEFAULT_INLINE_DIRECTIVES;
+
+  const inlineDirectives = rawInlineDirectives
+    .filter(d => d && typeof d.name === 'string' && d.name.trim().length > 0)
+    .map(d => {
+      const name = d.name.trim();
+      const rawClass = typeof d.className === 'string' && d.className.trim() ? d.className.trim() : name;
+      const cleanClass = sanitizeClassName(rawClass) || sanitizeClassName(name) || 'custom-dir';
+      const rawTag = typeof d.tag === 'string' ? d.tag.trim().toLowerCase() : 'span';
+      return {
+        name,
+        className: cleanClass,
+        tag: ALLOWED_INLINE_TAGS.has(rawTag) ? rawTag : 'span'
+      };
+    });
 
   const directiveMap = new Map();
   inlineDirectives.forEach(dir => {
     directiveMap.set(dir.name, {
-      className: dir.className || dir.name,
-      tag: dir.tag || 'span'
+      className: dir.className,
+      tag: dir.tag
     });
   });
 
-  const scholarlyReTable = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[(?:[^\[\]]|\[[^\[\]]*\])*\]|(?<!:):br|(?<!:):indent)/;
-  const scholarlyReNormal = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<!:):[a-zA-Z0-9_-]+\[(?:[^\[\]]|\[[^\[\]]*\])*\])/;
+  const scholarlyReTable = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<![\w:-]):[a-zA-Z][a-zA-Z0-9_-]*\[(?:[^\[\]]|\[[^\[\]]*\])*\]|(?<![\w:-]):br(?!\w)|(?<![\w:-]):indent(?!\w))/;
+  const scholarlyReNormal = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<![\w:-]):[a-zA-Z][a-zA-Z0-9_-]*\[(?:[^\[\]]|\[[^\[\]]*\])*\])/;
   const getScholarlyRe = (inTable = false) => inTable ? scholarlyReTable : scholarlyReNormal;
 
   md.core.ruler.after('linkify', 'scholarly_fixes', (state) => {
@@ -245,15 +291,16 @@ function scholarlyPlugin(md, options = {}) {
               newChildren.push(close);
             } 
             // Configurable & Zero-Code Inline Directives: :sig[...], :mark[...], :custom[...]
-            else if (part.match(/^:[a-zA-Z0-9_-]+\[(?:[^\[\]]|\[[^\[\]]*\])*\]$/)) {
+            else if (part.match(/^:[a-zA-Z][a-zA-Z0-9_-]*\[(?:[^\[\]]|\[[^\[\]]*\])*\]$/)) {
               const colonPos = part.indexOf(':');
               const bracketPos = part.indexOf('[');
               const dirName = part.slice(colonPos + 1, bracketPos);
               const innerText = part.slice(bracketPos + 1, -1);
 
               const config = directiveMap.get(dirName) || { className: dirName, tag: 'span' };
-              const tagName = config.tag || 'span';
-              const className = config.className || dirName;
+              const rawTag = config.tag || 'span';
+              const tagName = ALLOWED_INLINE_TAGS.has(rawTag.toLowerCase()) ? rawTag.toLowerCase() : 'span';
+              const className = sanitizeClassName(config.className || dirName) || 'custom-dir';
 
               const openTag = new state.Token('html_inline', '', 0);
               openTag.content = `<${tagName} class="${className}">`;
