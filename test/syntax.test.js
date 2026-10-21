@@ -56,9 +56,30 @@ test('1. Feature Tests: Standard Syntax Elements', async (t) => {
     assert.match(html, /<span class="sanskrit-dev" translate="no" lang="sa">धर्मः ॥<\/span>/);
   });
 
-  await t.test('1.7 Important box container', () => {
-    const html = md.render('::: important\nAlert text\n:::');
-    assert.match(html, /<div class="important custom-block">\n<p>Alert text<\/p>\n<\/div>/);
+  await t.test('1.7 Warning box & Verse box containers (v2 standard)', () => {
+    const warningHtml = md.render('::: warning-box\nAlert text\n:::');
+    assert.match(warningHtml, /<div class="warning-box custom-block">\n<p>Alert text<\/p>\n<\/div>/);
+
+    const verseHtml = md.render('::: verse-box\nŚloka text\n:::');
+    assert.match(verseHtml, /<div class="verse-box custom-block">\n<p>Śloka text<\/p>\n<\/div>/);
+  });
+
+  await t.test('1.7b Graceful Aliasing for legacy containers', () => {
+    // important -> warning-box
+    const importantHtml = md.render('::: important\nAlert text\n:::');
+    assert.match(importantHtml, /<div class="warning-box custom-block">\n<p>Alert text<\/p>\n<\/div>/);
+
+    // literatur-box -> note-box
+    const literaturHtml = md.render('::: literatur-box\nQuelle\n:::');
+    assert.match(literaturHtml, /<div class="note-box custom-block">\n<p>Quelle<\/p>\n<\/div>/);
+
+    // compact -> verse-box
+    const compactHtml = md.render('::: compact\nVerszeile\n:::');
+    assert.match(compactHtml, /<div class="verse-box custom-block">\n<p>Verszeile<\/p>\n<\/div>/);
+
+    // metrik-schema -> preserves dedicated legacy class (left-aligned, nowrap, monospace)
+    const metrikHtml = md.render('::: metrik-schema\nSchema\n:::');
+    assert.match(metrikHtml, /<div class="metrik-schema custom-block">\n<p>Schema<\/p>\n<\/div>/);
   });
 
   await t.test('1.8 Grammar box container with title', () => {
@@ -90,11 +111,23 @@ test('1. Feature Tests: Standard Syntax Elements', async (t) => {
     assert.match(noSpaceTitle, /<div class="grammar-box custom-block">\n<div class="md-box__title">Titel<\/div>/);
   });
 
-  await t.test('1.12 Grammar-box2 without grammar-box collision', () => {
-    const box2 = md.render('::: grammar-box2\nSchema\n:::');
+  await t.test('1.12 Prefix container collision prevention (custom containers)', () => {
+    const customMd = new MarkdownIt({ html: true }).use(extensiblePlugin, {
+      injectStyles: false,
+      blockContainers: [
+        { name: 'grammar-box', className: 'grammar-box' },
+        { name: 'grammar-box2', className: 'grammar-box2' }
+      ]
+    });
+    const box2 = customMd.render('::: grammar-box2\nSchema\n:::');
     assert.match(box2, /<div class="grammar-box2 custom-block">/);
-    const box1 = md.render('::: grammar-box\nRule\n:::');
+    const box1 = customMd.render('::: grammar-box\nRule\n:::');
     assert.match(box1, /<div class="grammar-box custom-block">/);
+  });
+
+  await t.test('1.13 Obsolete gaga-box eliminated from default containers', () => {
+    const unparsedGaga = md.render('::: gaga-box\nUnparsed text\n:::');
+    assert.doesNotMatch(unparsedGaga, /class="gaga-box/);
   });
 });
 

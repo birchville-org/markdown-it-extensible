@@ -4,6 +4,20 @@ All notable changes to `markdown-it-extensible` will be documented in this file.
 
 ---
 
+## [1.4.0] - 2026-10-21
+
+### Konsolidierung & Didaktischer v2-Standard
+- **Aufnahme des v2 Minimal-Sets:** `warning-box` (didaktische Führung, Stolperfallen; Scholarly Terracotta) und `verse-box` (Ślokas, Mantras, Lesetexte, Metrik) sind nun offizielle Standard-Container in `DEFAULT_BLOCK_CONTAINERS` inklusive voller Light-/Dark-Mode-Gestaltung in `theme/payer-theme.css`.
+- **Eliminierung redundanter Code-Leichen:** Die ungenutzte `gaga-box` sowie die redundante `grammar-box2` wurden aus den Standard-Containern entfernt.
+- **Graceful Aliasing für Legacy-Container:** Zur Gewährleistung nahtloser Abwärtskompatibilität mappen Alt-Container automatisch auf den neuen Standard:
+  - `important` → rendert als `.warning-box`
+  - `literatur-box` / `literatur` → rendert als `.note-box`
+  - `compact` → rendert als `.verse-box`
+  - `metrik-schema` → rendert als `.verse-box.metrik-schema`
+- **Theme-CSS:** `theme/payer-theme.css` um `.custom-block.warning-box` und `.custom-block.verse-box` ergänzt; ungenutztes `.custom-block.gaga-box` entfernt.
+
+---
+
 ## [1.3.2] - 2026-10-14
 
 ### Sicherheit & Sandbox

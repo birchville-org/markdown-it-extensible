@@ -4,17 +4,22 @@ Auch ohne Konfiguration liefert `markdown-it-extensible` eine Reihe an nützlich
 
 ## Standard Block-Container
 
-Folgende Block-Container sind out-of-the-box verfügbar (Auszug):
-- `grammar-box` & `grammar-box2`
-- `media`
-- `center`
-- `metrik-schema`
-- `important`
-- `literatur-box`
-- `note-box`
-- `laut-table`
-- `indent` / `compact`
-- `no-header`
+Folgende Block-Container sind out-of-the-box verfügbar:
+
+### Konsolidiertes Kern-Set (v2 Minimal-Set)
+- `grammar-box`: Normative Grammatikregeln, Bildungsgesetze und Paradigmentabellen.
+- `warning-box`: Didaktische Warnungen, Interferenzfallen und Übersetzungsverbote.
+- `verse-box`: Ślokas, Mantras, Lesetexte und metrische Versschemata.
+- `note-box`: Philologische Anmerkungen, Realien, Quellen und Buchempfehlungen.
+- `indent`: Strukturierte Einrückung für Belege, Einzelformen und Ableitungen.
+- `media`: Vollständige Kapselung von Bild, Bildlegende und Urhebernachweis.
+- `no-header`: Hilfsattribut zum Ausblenden der `thead`-Kopfzeile bei tabellarischen Daten.
+
+### Graceful Aliasing für Alt-Container (Abwärtskompatibilität)
+- `important` → rendert als `warning-box`
+- `literatur-box` / `literatur` → rendert als `note-box`
+- `compact` → rendert als `verse-box`
+- `metrik-schema`, `center`, `laut-table`, `deleteme-box` (Legacy-Container weiterhin unterstützt)
 
 ## Scholarly & Typografie Features
 

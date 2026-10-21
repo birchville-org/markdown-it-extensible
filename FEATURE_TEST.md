@@ -19,9 +19,9 @@ Dieses Dokument enthält Testbeispiele für alle unterstützten Block-Container,
 
 ## 2. Block-Container (`::: name [Titel]`)
 
-### Important Box (Violett mit Verkehrszeichen-SVG)
-::: important [Wichtiger Hinweis]
-**Achtung:** Diese Box besitzt einen violetten linken Rand, ein Verkehrsschild-Warnsymbol auf der linken Seite und ein schimmerndes Violett als Hintergrund.
+### Warning Box (Scholarly Terracotta / Warnung)
+::: warning-box [Didaktische Warnung]
+**Achtung:** Didaktische Warnungen, Sprachinterferenz und Stolperfallen werden in einer terrakottafarbenen Box dargestellt.
 :::
 
 ### Grammar Box (Gelb / Gold)
@@ -29,20 +29,15 @@ Dieses Dokument enthält Testbeispiele für alle unterstützten Block-Container,
 Dies ist eine Standard-Grammatikbox für Regeln, Paradigmen und Lautgesetze.
 :::
 
-### Advanced Grammar Box (Orange)
-::: grammar-box2 [Fortgeschrittene Grammatik]
-Dies ist eine Grammatikbox2 mit kräftigem orangefarbenem Akzent für vertiefende Regeln.
+### Verse Box (Zentrierter Primärtext & Ślokas)
+::: verse-box
+***ॐ***
+Dharmo rakṣati rakṣitaḥ
 :::
 
 ### Didactic Note Box (Diskretes Grau)
 ::: note-box
 Dies ist eine Anmerkungs-Box für didaktische Hinweise, Fußnoten und Querverweise.
-:::
-
-### Centered Content Block (Zentrierter Text)
-::: center
-***ॐ***
-Dharmo rakṣati rakṣitaḥ
 :::
 
 ### Media Container (Bilder & SVGs)
@@ -80,11 +75,14 @@ Dharmo rakṣati rakṣitaḥ
 
 ---
 
-## 4. Neues Container Element (Gaga-Box)
+## 4. Graceful Aliasing & Legacy Support
 
-::: gaga-box [Optionaler Titel]
-Dies ist das neue Container Element mit rotem Hintergrund und gelber Schrift.
-Die Box ist linksseitig eingerückt.
+::: important [Aliased Important Box]
+Diese Box (`::: important`) wird aus Gründen der Abwärtskompatibilität automatisch als Scholarly `warning-box` gerendert.
+:::
+
+::: literatur-box
+Literaturangaben (`::: literatur-box`) werden sauber als dezent gefärbte `note-box` dargestellt.
 :::
 
 ---

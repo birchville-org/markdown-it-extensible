@@ -5,16 +5,21 @@ Even without custom configuration, `markdown-it-extensible` ships with a compreh
 ## Default Block Containers
 
 The following block containers are available out of the box:
-- `grammar-box` & `grammar-box2`
-- `media`
-- `center`
-- `metrik-schema`
-- `important`
-- `literatur-box`
-- `note-box`
-- `laut-table`
-- `indent` / `compact`
-- `no-header`
+
+### Consolidated Core Minimal-Set (v2)
+- `grammar-box`: Normative grammar rules, phonetic laws, and inflection paradigms.
+- `warning-box`: Didactic warnings, language interference, and translation pitfalls.
+- `verse-box`: Ślokas, mantras, sacred reading texts, and poetic meters.
+- `note-box`: Scholarly notes, cultural background, sources, and literature references.
+- `indent`: Structured indentation for citations, forms, and sub-derivations.
+- `media`: Unified wrapper for images, captions, and licensing credits.
+- `no-header`: Utility container to hide the table header (`thead`) for purely tabular data.
+
+### Graceful Aliasing for Legacy Containers (Backwards Compatibility)
+- `important` → renders as `warning-box`
+- `literatur-box` / `literatur` → renders as `note-box`
+- `compact` → renders as `verse-box`
+- `metrik-schema`, `center`, `laut-table`, `deleteme-box` (legacy containers remain functional)
 
 ## Scholarly & Typography Features
 

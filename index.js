@@ -28,28 +28,34 @@ function sanitizeClassName(cls) {
 }
 
 const DEFAULT_BLOCK_CONTAINERS = [
+  // ── Konsolidiertes Kern-Set (Payer v2 Standard) ──
   { name: 'grammar-box', className: 'grammar-box' },
   { name: 'grammarbox', className: 'grammar-box' },
-  { name: 'grammar-box2', className: 'grammar-box2' },
-  { name: 'grammarbox2', className: 'grammar-box2' },
-  { name: 'media', className: 'media' },
-  { name: 'center', className: 'center' },
-  { name: 'metrik-schema', className: 'metrik-schema' },
-  { name: 'metrikschema', className: 'metrik-schema' },
-  { name: 'important', className: 'important' },
-  { name: 'deleteme-box', className: 'deleteme-box' },
-  { name: 'deletemebox', className: 'deleteme-box' },
-  { name: 'literatur-box', className: 'literatur-box' },
-  { name: 'literatur', className: 'literatur-box' },
+  { name: 'warning-box', className: 'warning-box' },
+  { name: 'warningbox', className: 'warning-box' },
+  { name: 'verse-box', className: 'verse-box' },
+  { name: 'versebox', className: 'verse-box' },
   { name: 'note-box', className: 'note-box' },
   { name: 'notebox', className: 'note-box' },
-  { name: 'laut-table', className: 'laut-table' },
-  { name: 'lauttable', className: 'laut-table' },
   { name: 'indent', className: 'indent' },
-  { name: 'compact', className: 'compact' },
+  { name: 'media', className: 'media' },
   { name: 'no-header', className: 'no-header' },
   { name: 'noheader', className: 'no-header' },
-  { name: 'gaga-box', className: 'gaga-box' }
+
+  // ── Graceful Aliasing für Alt-Container (Abwärtskompatibilität) ──
+  { name: 'important', className: 'warning-box' },
+  { name: 'literatur-box', className: 'note-box' },
+  { name: 'literatur', className: 'note-box' },
+  { name: 'compact', className: 'verse-box' },
+
+  // ── Strukturelle & Redaktionelle Legacy-Container ──
+  { name: 'metrik-schema', className: 'metrik-schema' },
+  { name: 'metrikschema', className: 'metrik-schema' },
+  { name: 'center', className: 'center' },
+  { name: 'laut-table', className: 'laut-table' },
+  { name: 'lauttable', className: 'laut-table' },
+  { name: 'deleteme-box', className: 'deleteme-box' },
+  { name: 'deletemebox', className: 'deleteme-box' }
 ];
 
 const DEFAULT_INLINE_DIRECTIVES = [

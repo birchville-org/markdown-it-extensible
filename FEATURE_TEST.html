@@ -286,6 +286,34 @@ html[dir="rtl"] :where(.vp-doc, body) em {
   color: #fef08a !important;
 }
 
+/* Custom Block: Warning-Box (Birchville Scholarly Terracotta) */
+.custom-block.warning-box,
+:where(.vp-doc, body) .custom-block.warning-box {
+  background-color: #fff7ed !important; /* Warm peach */
+  border: none !important;
+  border-left: 5px solid #ea580c !important; /* Scholarly Terracotta */
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  font-size: 1.1rem !important;
+  color: #1e293b !important;
+}
+
+.dark .custom-block.warning-box,
+.dark :where(.vp-doc, body) .custom-block.warning-box,
+.vscode-dark .custom-block.warning-box {
+  background-color: #361e04 !important;
+  border-left-color: #ea580c !important;
+  color: #ffedd5 !important;
+}
+
+.custom-block.warning-box .custom-block-title,
+:where(.vp-doc, body) .custom-block.warning-box .custom-block-title {
+  display: none !important;
+}
+
+
 /* Custom Block: Grammar-Box 2 (Orange background, bold styling) */
 .custom-block.grammar-box2,
 :where(.vp-doc, body) .custom-block.grammar-box2 {
@@ -385,34 +413,76 @@ html[dir="rtl"] :where(.vp-doc, body) em {
   color: inherit !important;
 }
 
-/* Remove bottom margin from the last child inside any custom-block to avoid
+/* Remove top margin from the first child inside any custom-block / box container
+   to avoid child margin + container padding stacking (which causes an empty first line when no title is present). */
+:where(.vp-doc, body) .custom-block > *:first-child,
+:where(.vp-doc, body) [class*="-box"] > *:first-child,
+:where(.vp-doc, body) [class*="custom-"] > *:first-child,
+:where(.vp-doc, body) .metrik-schema > *:first-child,
+:where(.vp-doc, body) .laut-table > *:first-child,
+:where(.vp-doc, body) .center > *:first-child,
+:where(.vp-doc, body) .indent > *:first-child,
+:where(.vp-doc, body) .compact > *:first-child,
+.custom-block > *:first-child {
+  margin-top: 0 !important;
+}
+
+/* Remove bottom margin from the last child inside any custom-block / box container to avoid
    extra whitespace (child margin + container padding stacking). */
-:where(.vp-doc, body) .custom-block > *:last-child {
+:where(.vp-doc, body) .custom-block > *:last-child,
+:where(.vp-doc, body) [class*="-box"] > *:last-child,
+:where(.vp-doc, body) [class*="custom-"] > *:last-child,
+:where(.vp-doc, body) .metrik-schema > *:last-child,
+:where(.vp-doc, body) .laut-table > *:last-child,
+:where(.vp-doc, body) .center > *:last-child,
+:where(.vp-doc, body) .indent > *:last-child,
+:where(.vp-doc, body) .compact > *:last-child,
+.custom-block > *:last-child {
   margin-bottom: 0 !important;
 }
 
+/* Hide empty or whitespace-only title divs in all containers */
+:where(.vp-doc, body) .md-box__title:empty,
+:where(.vp-doc, body) .custom-block-title:empty,
+.md-box__title:empty,
+.custom-block-title:empty {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
+}
+
 /* Table-wrapper containers (center, no-header) nested directly inside a
-   grammar-box must not add their own margin/padding — the grammar-box
-   padding (1.25rem) already provides all the breathing room. */
-:where(.vp-doc, body) .grammar-box > .custom-block.center,
-:where(.vp-doc, body) .grammar-box > .custom-block.no-header {
+   container must not add their own margin/padding — the parent container
+   padding already provides all the breathing room. */
+:where(.vp-doc, body) .custom-block > .custom-block.center,
+:where(.vp-doc, body) .custom-block > .custom-block.no-header,
+:where(.vp-doc, body) [class*="-box"] > .custom-block.center,
+:where(.vp-doc, body) [class*="-box"] > .custom-block.no-header {
   margin: 0 !important;
   padding: 0 !important;
 }
 
-/* indent blocks nested directly inside a grammar-box: suppress the
+/* indent blocks nested directly inside a container: suppress the
    negative margin-top (-0.7rem) that is designed for post-paragraph
-   context — here the grammar-box padding already handles spacing. */
-:where(.vp-doc, body) .grammar-box > .custom-block.indent {
+   context — here the container padding already handles spacing. */
+:where(.vp-doc, body) .custom-block > .custom-block.indent,
+:where(.vp-doc, body) [class*="-box"] > .custom-block.indent {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
 
 /* Empty paragraphs created by blank lines around block-level children
-   inside a grammar-box contribute height without content — hide them. */
-:where(.vp-doc, body) .grammar-box > p:empty {
-  display: none;
+   inside containers contribute height without content — hide them. */
+:where(.vp-doc, body) .custom-block > p:empty,
+:where(.vp-doc, body) [class*="-box"] > p:empty,
+:where(.vp-doc, body) .metrik-schema > p:empty,
+:where(.vp-doc, body) .laut-table > p:empty,
+.custom-block > p:empty {
+  display: none !important;
   margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
 }
 
 /* Media & Image Alignment */
@@ -447,6 +517,34 @@ html[dir="rtl"] :where(.vp-doc, body) em {
   font-size: 0.95rem !important;
   color: var(--vp-c-text-2) !important;
   font-style: normal !important;
+}
+
+/* Verse Box (for Ślokas, Mantras, Prayers, Reading Texts, Metrik) */
+:where(.vp-doc, body) .verse-box,
+:where(.vp-doc, body) .custom-block.verse-box,
+.verse-box,
+.custom-block.verse-box {
+  width: 100% !important;
+  text-align: center !important;
+  margin: 2rem 0 !important;
+  display: block !important;
+}
+
+:where(.vp-doc, body) .verse-box p,
+:where(.vp-doc, body) .custom-block.verse-box p,
+.verse-box p,
+.custom-block.verse-box p {
+  text-align: center !important;
+  white-space: pre-line !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 0 auto 1.25rem auto !important;
+  line-height: 1.55 !important;
+}
+
+.custom-block.verse-box .custom-block-title,
+:where(.vp-doc, body) .custom-block.verse-box .custom-block-title {
+  display: none !important;
 }
 
 /* Center Container (for Prayers, etc.) */
@@ -1119,9 +1217,27 @@ select.control-btn,
   margin-bottom: 8px;
 }
 
+/* Literatur-Box (Wissenschaftliche Quellenangaben) */
+:where(.vp-doc, body) .custom-block.literatur-box {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  padding: 12px 16px;
+  background-color: var(--vp-c-bg-soft);
+  margin: 16px 0;
+  font-size: 0.9em;
+  position: relative;
+}
+
+:where(.vp-doc, body) .custom-block.literatur-box::before {
+  content: "📖";
+  margin-right: 8px;
+  font-size: 1.1em;
+}
+
+
   </style>
 </head>
-<body style="max-width: 900px; margin: 2rem auto; padding: 0 1rem;">
+<body style="max-width: 900px; margin: 40px auto; padding: 0 20px;">
 <h1>Feature Test Suite — markdown-it-extensible (v1.1.0)</h1>
 <p>Dieses Dokument enthält Testbeispiele für alle unterstützten Block-Container, Inline-Direktiven, Scholarly Sanskrit Syntaxen, Tabellen und SVG-Grafiken zum visuellen Testen in VS Code oder Zentauri.</p>
 <hr>
@@ -1141,29 +1257,24 @@ select.control-btn,
 </ul>
 <hr>
 <h2>2. Block-Container (<code>::: name [Titel]</code>)</h2>
-<h3>Important Box (Violett mit Verkehrszeichen-SVG)</h3>
-<div class="important custom-block">
-<div class="md-box__title">Wichtiger Hinweis</div>
-<p><strong>Achtung:</strong> Diese Box besitzt einen violetten linken Rand, ein Verkehrsschild-Warnsymbol auf der linken Seite und ein schimmerndes Violett als Hintergrund.</p>
+<h3>Warning Box (Scholarly Terracotta / Warnung)</h3>
+<div class="warning-box custom-block">
+<div class="md-box__title">Didaktische Warnung</div>
+<p><strong>Achtung:</strong> Didaktische Warnungen, Sprachinterferenz und Stolperfallen werden in einer terrakottafarbenen Box dargestellt.</p>
 </div>
 <h3>Grammar Box (Gelb / Gold)</h3>
 <div class="grammar-box custom-block">
 <div class="md-box__title">Grammatik-Regel</div>
 <p>Dies ist eine Standard-Grammatikbox für Regeln, Paradigmen und Lautgesetze.</p>
 </div>
-<h3>Advanced Grammar Box (Orange)</h3>
-<div class="grammar-box2 custom-block">
-<div class="md-box__title">Fortgeschrittene Grammatik</div>
-<p>Dies ist eine Grammatikbox2 mit kräftigem orangefarbenem Akzent für vertiefende Regeln.</p>
+<h3>Verse Box (Zentrierter Primärtext &amp; Ślokas)</h3>
+<div class="verse-box custom-block">
+<p><em><strong>ॐ</strong></em>
+Dharmo rakṣati rakṣitaḥ</p>
 </div>
 <h3>Didactic Note Box (Diskretes Grau)</h3>
 <div class="note-box custom-block">
 <p>Dies ist eine Anmerkungs-Box für didaktische Hinweise, Fußnoten und Querverweise.</p>
-</div>
-<h3>Centered Content Block (Zentrierter Text)</h3>
-<div class="center custom-block">
-<p><em><strong>ॐ</strong></em>
-Dharmo rakṣati rakṣitaḥ</p>
 </div>
 <h3>Media Container (Bilder &amp; SVGs)</h3>
 <div class="media custom-block">
@@ -1196,7 +1307,7 @@ Dharmo rakṣati rakṣitaḥ</p>
 </tbody>
 </table>
 <h3>Tabellen-Zellen zusammenführen (Colspan &amp; Rowspan)</h3>
-<div class="compact custom-block">
+<div class="verse-box custom-block">
 <table>
 <thead>
 <tr>
@@ -1246,7 +1357,16 @@ Dharmo rakṣati rakṣitaḥ</p>
 </table>
 </div>
 <hr>
-<h2>4. Verschachtelte Container (Mehrere Doppelpunkte)</h2>
+<h2>4. Graceful Aliasing &amp; Legacy Support</h2>
+<div class="warning-box custom-block">
+<div class="md-box__title">Aliased Important Box</div>
+<p>Diese Box (<code>::: important</code>) wird aus Gründen der Abwärtskompatibilität automatisch als Scholarly <code>warning-box</code> gerendert.</p>
+</div>
+<div class="note-box custom-block">
+<p>Literaturangaben (<code>::: literatur-box</code>) werden sauber als dezent gefärbte <code>note-box</code> dargestellt.</p>
+</div>
+<hr>
+<h2>5. Verschachtelte Container (Mehrere Doppelpunkte)</h2>
 <div class="grammar-box custom-block">
 <div class="md-box__title">Verschachtelte Struktur</div>
 <p>Hier ist der äußere Grammatik-Block mit 4 Doppelpunkten (<code>:::: grammar-box</code>).</p>
