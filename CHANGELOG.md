@@ -4,6 +4,13 @@ All notable changes to `markdown-it-extensible` will be documented in this file.
 
 ---
 
+## [1.4.2] - 2026-10-31
+
+### Fehlerbehebung
+- **Tabellen-Zeilenumbrüche vor Ziffern (`:br5`):** Der Regex-Lookahead wurde von `(?!\w)` auf `(?![a-zA-Z_])` präzisiert, sodass `:br` auch dann als Zeilenumbruch erkannt wird, wenn unmittelbar eine Zahl oder Ziffer (z. B. Verbklassen-Kennzeichnung `:br5 P`) folgt, während Bezeichner mit Buchstaben oder Unterstrich (wie `:br_var` oder `:breakfast`) unangetastet bleiben.
+
+---
+
 ## [1.4.1] - 2026-10-31
 
 ### Fehlerbehebung

@@ -39,6 +39,15 @@ test('1. Feature Tests: Standard Syntax Elements', async (t) => {
     // Also verify when :br directly borders word characters (e.g. Wurzel:br⟪धातु⟫)
     const insideTightHtml = md.render('| Wurzel:br⟪धातु⟫ |\n|---|');
     assert.match(insideTightHtml, /Wurzel<br>/);
+
+    // Also verify when :br is immediately followed by a digit (e.g. :br5 P)
+    const insideDigitHtml = md.render('| **āp** :br5 P:br⟪आप्⟫ |\n|---|');
+    assert.match(insideDigitHtml, /<br>\s*5 P/);
+
+    // Verify identifiers with letters or underscores are not broken (e.g. :br_var or :breakfast)
+    const insideIdentHtml = md.render('| :br_custom and :breakfast |\n|---|');
+    assert.doesNotMatch(insideIdentHtml, /<br>/);
+    assert.match(insideIdentHtml, /:br_custom and :breakfast/);
   });
 
   await t.test('1.4 Table indent :indent (outside vs inside table)', () => {
