@@ -4,6 +4,13 @@ All notable changes to `markdown-it-extensible` will be documented in this file.
 
 ---
 
+## [1.4.1] - 2026-10-31
+
+### Fehlerbehebung
+- **Tabellen-Zeilenumbrüche (`:br`):** Der Regex-Lookbehind `(?<![\w:-]):br` wurde gelockert auf `(?<!:):br`, sodass `:br` auch dann zuverlässig in ein `<br>` umgewandelt wird, wenn es unmittelbar an Wortzeichen grenzt (z. B. `Wurzel:br⟪धातु⟫` oder `Vor Vokal:br(schwach)`).
+
+---
+
 ## [1.4.0] - 2026-10-21
 
 ### Konsolidierung & Didaktischer v2-Standard

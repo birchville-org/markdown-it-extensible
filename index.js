@@ -229,7 +229,7 @@ function scholarlyPlugin(md, options = {}) {
     });
   });
 
-  const scholarlyReTable = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<![\w:-]):[a-zA-Z][a-zA-Z0-9_-]*\[(?:[^\[\]]|\[[^\[\]]*\])*\]|(?<![\w:-]):br(?!\w)|(?<![\w:-]):indent(?!\w))/;
+  const scholarlyReTable = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<![\w:-]):[a-zA-Z][a-zA-Z0-9_-]*\[(?:[^\[\]]|\[[^\[\]]*\])*\]|(?<!:):br(?!\w)|(?<![\w:-]):indent(?!\w))/;
   const scholarlyReNormal = /([⟪《][^⟫⟩》]+[⟫⟩》](?:\s*\|\|?)?|(?<![\w:-]):[a-zA-Z][a-zA-Z0-9_-]*\[(?:[^\[\]]|\[[^\[\]]*\])*\])/;
   const getScholarlyRe = (inTable = false) => inTable ? scholarlyReTable : scholarlyReNormal;
 

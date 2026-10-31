@@ -35,6 +35,10 @@ test('1. Feature Tests: Standard Syntax Elements', async (t) => {
 
     const insideHtml = md.render('| col |\n|---|\n| cell :br text |');
     assert.match(insideHtml, /<br>/);
+
+    // Also verify when :br directly borders word characters (e.g. Wurzel:br⟪धातु⟫)
+    const insideTightHtml = md.render('| Wurzel:br⟪धातु⟫ |\n|---|');
+    assert.match(insideTightHtml, /Wurzel<br>/);
   });
 
   await t.test('1.4 Table indent :indent (outside vs inside table)', () => {
